@@ -1,0 +1,569 @@
+{
+  "filePath": "sample19/main.bal",
+  "description": "Test the generation of service model for a HubSpot service",
+  "start": {
+    "line": 4,
+    "offset": 0
+  },
+  "end": {
+    "line": 29,
+    "offset": 0
+  },
+  "response": {
+    "id": "20",
+    "name": "HubSpot Event Integration",
+    "type": "trigger.hubspot",
+    "displayName": "HubSpot Event Integration",
+    "moduleName": "trigger.hubspot",
+    "orgName": "ballerinax",
+    "version": "0.10.0",
+    "packageName": "trigger.hubspot",
+    "listenerProtocol": "hubspot",
+    "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_trigger.hubspot_0.10.0.png",
+    "documentation": {
+      "metadata": {
+        "label": "Description",
+        "description": "The description of the class"
+      },
+      "codedata": {
+        "type": "DOCUMENTATION"
+      },
+      "types": [
+        {
+          "fieldType": "TEXT",
+          "selected": true
+        }
+      ],
+      "enabled": true,
+      "editable": true,
+      "optional": true,
+      "advanced": false
+    },
+    "properties": {
+      "listener": {
+        "metadata": {
+          "label": "Listeners",
+          "description": "The Listeners to be bound with the service"
+        },
+        "codedata": {
+          "type": "LISTENER"
+        },
+        "placeholder": "",
+        "value": "hubspotListener",
+        "values": [],
+        "properties": {
+          "hubspotListener": {
+            "codedata": {
+              "lineRange": {
+                "fileName": "main.bal",
+                "startLine": {
+                  "line": 4,
+                  "offset": 34
+                },
+                "endLine": {
+                  "line": 4,
+                  "offset": 49
+                }
+              }
+            },
+            "enabled": false,
+            "editable": false,
+            "optional": false,
+            "advanced": false
+          }
+        },
+        "types": [
+          {
+            "fieldType": "MULTIPLE_SELECT_LISTENER",
+            "options": [
+              {
+                "label": "hubspotListener",
+                "value": "hubspotListener"
+              }
+            ],
+            "selected": true
+          }
+        ],
+        "enabled": true,
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      },
+      "serviceType": {
+        "metadata": {
+          "label": "Event Type",
+          "description": "The event type"
+        },
+        "codedata": {
+          "type": "SERVICE_TYPE"
+        },
+        "placeholder": "",
+        "value": "CompanyService",
+        "types": [
+          {
+            "fieldType": "SINGLE_SELECT",
+            "options": [
+              {
+                "label": "",
+                "value": ""
+              },
+              {
+                "label": "CompanyService",
+                "value": "CompanyService"
+              },
+              {
+                "label": "ContactService",
+                "value": "ContactService"
+              },
+              {
+                "label": "ConversationService",
+                "value": "ConversationService"
+              },
+              {
+                "label": "DealService",
+                "value": "DealService"
+              }
+            ],
+            "selected": true
+          }
+        ],
+        "enabled": true,
+        "editable": false,
+        "optional": false,
+        "advanced": false
+      },
+      "readOnlyMetadata": {
+        "codedata": {
+          "type": "READONLY"
+        },
+        "placeholder": "false",
+        "value": {
+          "Event Type": [
+            "CompanyService"
+          ]
+        },
+        "types": [
+          {
+            "fieldType": "SINGLE_SELECT",
+            "selected": true
+          }
+        ],
+        "enabled": true,
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      }
+    },
+    "codedata": {
+      "lineRange": {
+        "fileName": "main.bal",
+        "startLine": {
+          "line": 4,
+          "offset": 0
+        },
+        "endLine": {
+          "line": 28,
+          "offset": 1
+        }
+      },
+      "orgName": "ballerinax",
+      "packageName": "trigger.hubspot",
+      "moduleName": "trigger.hubspot"
+    },
+    "functions": [
+      {
+        "metadata": {
+          "label": "onCompanyCreation",
+          "description": "Triggers when a new company is created"
+        },
+        "kind": "REMOTE",
+        "name": {
+          "metadata": {
+            "label": "onCompanyCreation",
+            "description": "Triggers when a new company is created"
+          },
+          "placeholder": "onCompanyCreation",
+          "value": "onCompanyCreation",
+          "types": [
+            {
+              "fieldType": "IDENTIFIER",
+              "selected": false
+            }
+          ],
+          "enabled": true,
+          "editable": false,
+          "optional": false,
+          "advanced": false
+        },
+        "parameters": [
+          {
+            "metadata": {
+              "label": "event",
+              "description": "The HubSpot webhook event"
+            },
+            "kind": "REQUIRED",
+            "type": {
+              "metadata": {
+                "label": "Parameter Type",
+                "description": "The type of the parameter"
+              },
+              "placeholder": "hubspot:WebhookEvent",
+              "value": "hubspot:WebhookEvent",
+              "types": [
+                {
+                  "fieldType": "TYPE",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": false,
+              "optional": true,
+              "advanced": false
+            },
+            "name": {
+              "metadata": {
+                "label": "event",
+                "description": "The HubSpot webhook event"
+              },
+              "placeholder": "event",
+              "value": "event",
+              "types": [
+                {
+                  "fieldType": "IDENTIFIER",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": true,
+              "optional": false,
+              "advanced": false
+            },
+            "defaultValue": {
+              "metadata": {
+                "label": "Default Value",
+                "description": "The default value of the parameter"
+              },
+              "placeholder": "",
+              "value": "",
+              "types": [
+                {
+                  "fieldType": "EXPRESSION",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": true,
+              "optional": true,
+              "advanced": false
+            },
+            "enabled": true,
+            "editable": true,
+            "optional": false,
+            "advanced": false,
+            "hidden": false,
+            "isGraphqlId": false
+          }
+        ],
+        "returnType": {
+          "hasError": true,
+          "isGraphqlId": false,
+          "metadata": {
+            "label": "Return Type",
+            "description": "The return type of the function"
+          },
+          "placeholder": "error?",
+          "value": "error?",
+          "types": [
+            {
+              "fieldType": "TYPE",
+              "selected": true
+            }
+          ],
+          "enabled": true,
+          "editable": false,
+          "optional": true,
+          "advanced": false
+        },
+        "enabled": true,
+        "optional": false,
+        "editable": false,
+        "canAddParameters": false,
+        "codedata": {
+          "lineRange": {
+            "fileName": "main.bal",
+            "startLine": {
+              "line": 5,
+              "offset": 4
+            },
+            "endLine": {
+              "line": 11,
+              "offset": 5
+            }
+          }
+        }
+      },
+      {
+        "metadata": {
+          "label": "onCompanyDeletion",
+          "description": "Triggers when a company is deleted"
+        },
+        "kind": "REMOTE",
+        "name": {
+          "metadata": {
+            "label": "onCompanyDeletion",
+            "description": "Triggers when a company is deleted"
+          },
+          "placeholder": "onCompanyDeletion",
+          "value": "onCompanyDeletion",
+          "types": [
+            {
+              "fieldType": "IDENTIFIER",
+              "selected": false
+            }
+          ],
+          "enabled": true,
+          "editable": false,
+          "optional": false,
+          "advanced": false
+        },
+        "parameters": [
+          {
+            "metadata": {
+              "label": "event",
+              "description": "The HubSpot webhook event"
+            },
+            "kind": "REQUIRED",
+            "type": {
+              "metadata": {
+                "label": "Parameter Type",
+                "description": "The type of the parameter"
+              },
+              "placeholder": "hubspot:WebhookEvent",
+              "value": "hubspot:WebhookEvent",
+              "types": [
+                {
+                  "fieldType": "TYPE",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": false,
+              "optional": true,
+              "advanced": false
+            },
+            "name": {
+              "metadata": {
+                "label": "event",
+                "description": "The HubSpot webhook event"
+              },
+              "placeholder": "event",
+              "value": "event",
+              "types": [
+                {
+                  "fieldType": "IDENTIFIER",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": true,
+              "optional": false,
+              "advanced": false
+            },
+            "defaultValue": {
+              "metadata": {
+                "label": "Default Value",
+                "description": "The default value of the parameter"
+              },
+              "placeholder": "",
+              "value": "",
+              "types": [
+                {
+                  "fieldType": "EXPRESSION",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": true,
+              "optional": true,
+              "advanced": false
+            },
+            "enabled": true,
+            "editable": true,
+            "optional": false,
+            "advanced": false,
+            "hidden": false,
+            "isGraphqlId": false
+          }
+        ],
+        "returnType": {
+          "hasError": true,
+          "isGraphqlId": false,
+          "metadata": {
+            "label": "Return Type",
+            "description": "The return type of the function"
+          },
+          "placeholder": "error?",
+          "value": "error?",
+          "types": [
+            {
+              "fieldType": "TYPE",
+              "selected": true
+            }
+          ],
+          "enabled": true,
+          "editable": false,
+          "optional": true,
+          "advanced": false
+        },
+        "enabled": true,
+        "optional": false,
+        "editable": false,
+        "canAddParameters": false,
+        "codedata": {
+          "lineRange": {
+            "fileName": "main.bal",
+            "startLine": {
+              "line": 13,
+              "offset": 4
+            },
+            "endLine": {
+              "line": 19,
+              "offset": 5
+            }
+          }
+        }
+      },
+      {
+        "metadata": {
+          "label": "onCompanyPropertychange",
+          "description": "Triggers when a company property is changed"
+        },
+        "kind": "REMOTE",
+        "name": {
+          "metadata": {
+            "label": "onCompanyPropertychange",
+            "description": "Triggers when a company property is changed"
+          },
+          "placeholder": "onCompanyPropertychange",
+          "value": "onCompanyPropertychange",
+          "types": [
+            {
+              "fieldType": "IDENTIFIER",
+              "selected": false
+            }
+          ],
+          "enabled": true,
+          "editable": false,
+          "optional": false,
+          "advanced": false
+        },
+        "parameters": [
+          {
+            "metadata": {
+              "label": "event",
+              "description": "The HubSpot webhook event"
+            },
+            "kind": "REQUIRED",
+            "type": {
+              "metadata": {
+                "label": "Parameter Type",
+                "description": "The type of the parameter"
+              },
+              "placeholder": "hubspot:WebhookEvent",
+              "value": "hubspot:WebhookEvent",
+              "types": [
+                {
+                  "fieldType": "TYPE",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": false,
+              "optional": true,
+              "advanced": false
+            },
+            "name": {
+              "metadata": {
+                "label": "event",
+                "description": "The HubSpot webhook event"
+              },
+              "placeholder": "event",
+              "value": "event",
+              "types": [
+                {
+                  "fieldType": "IDENTIFIER",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": true,
+              "optional": false,
+              "advanced": false
+            },
+            "defaultValue": {
+              "metadata": {
+                "label": "Default Value",
+                "description": "The default value of the parameter"
+              },
+              "placeholder": "",
+              "value": "",
+              "types": [
+                {
+                  "fieldType": "EXPRESSION",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": true,
+              "optional": true,
+              "advanced": false
+            },
+            "enabled": true,
+            "editable": true,
+            "optional": false,
+            "advanced": false,
+            "hidden": false,
+            "isGraphqlId": false
+          }
+        ],
+        "returnType": {
+          "hasError": true,
+          "isGraphqlId": false,
+          "metadata": {
+            "label": "Return Type",
+            "description": "The return type of the function"
+          },
+          "placeholder": "error?",
+          "value": "error?",
+          "types": [
+            {
+              "fieldType": "TYPE",
+              "selected": true
+            }
+          ],
+          "enabled": true,
+          "editable": false,
+          "optional": true,
+          "advanced": false
+        },
+        "enabled": true,
+        "optional": false,
+        "editable": false,
+        "canAddParameters": false,
+        "codedata": {
+          "lineRange": {
+            "fileName": "main.bal",
+            "startLine": {
+              "line": 21,
+              "offset": 4
+            },
+            "endLine": {
+              "line": 27,
+              "offset": 5
+            }
+          }
+        }
+      }
+    ]
+  }
+}
