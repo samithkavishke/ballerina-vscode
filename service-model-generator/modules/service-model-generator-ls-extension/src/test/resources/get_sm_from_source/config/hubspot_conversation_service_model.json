@@ -1,6 +1,6 @@
 {
-  "filePath": "sample19/main.bal",
-  "description": "Test the generation of service model for a HubSpot service",
+  "filePath": "sample21/main.bal",
+  "description": "Test the generation of service model for a HubSpot Conversation service",
   "start": {
     "line": 4,
     "offset": 0
@@ -58,11 +58,11 @@
                 "fileName": "main.bal",
                 "startLine": {
                   "line": 4,
-                  "offset": 34
+                  "offset": 39
                 },
                 "endLine": {
                   "line": 4,
-                  "offset": 49
+                  "offset": 54
                 }
               }
             },
@@ -98,7 +98,7 @@
           "type": "SERVICE_TYPE"
         },
         "placeholder": "",
-        "value": "CompanyService",
+        "value": "ConversationService",
         "types": [
           {
             "fieldType": "SINGLE_SELECT",
@@ -151,7 +151,7 @@
         "placeholder": "false",
         "value": {
           "Event Type": [
-            "CompanyService"
+            "ConversationService"
           ]
         },
         "types": [
@@ -185,17 +185,17 @@
     "functions": [
       {
         "metadata": {
-          "label": "onCompanyCreation",
-          "description": "Triggers when a new company is created"
+          "label": "onConversationCreation",
+          "description": "Triggers when a new conversation is created"
         },
         "kind": "REMOTE",
         "name": {
           "metadata": {
-            "label": "onCompanyCreation",
-            "description": "Triggers when a new company is created"
+            "label": "onConversationCreation",
+            "description": "Triggers when a new conversation is created"
           },
-          "placeholder": "onCompanyCreation",
-          "value": "onCompanyCreation",
+          "placeholder": "onConversationCreation",
+          "value": "onConversationCreation",
           "types": [
             {
               "fieldType": "IDENTIFIER",
@@ -316,21 +316,21 @@
       },
       {
         "metadata": {
-          "label": "onCompanyDeletion",
-          "description": "Triggers when a company is deleted"
+          "label": "onConversationDeletion",
+          "description": "Triggers when a conversation is deleted"
         },
         "kind": "REMOTE",
         "name": {
           "metadata": {
-            "label": "onCompanyDeletion",
-            "description": "Triggers when a company is deleted"
+            "label": "onConversationDeletion",
+            "description": "Triggers when a conversation is deleted"
           },
-          "placeholder": "onCompanyDeletion",
-          "value": "onCompanyDeletion",
+          "placeholder": "onConversationDeletion",
+          "value": "onConversationDeletion",
           "types": [
             {
               "fieldType": "IDENTIFIER",
-              "selected": false
+              "selected": true
             }
           ],
           "enabled": true,
@@ -427,37 +427,142 @@
           "optional": true,
           "advanced": false
         },
-        "enabled": true,
+        "enabled": false,
         "optional": false,
         "editable": false,
-        "canAddParameters": false,
-        "codedata": {
-          "lineRange": {
-            "fileName": "main.bal",
-            "startLine": {
-              "line": 13,
-              "offset": 4
-            },
-            "endLine": {
-              "line": 19,
-              "offset": 5
-            }
-          }
-        }
+        "canAddParameters": false
       },
       {
         "metadata": {
-          "label": "onCompanyPropertychange",
-          "description": "Triggers when a company property is changed"
+          "label": "onConversationPropertychange",
+          "description": "Triggers when a conversation property is changed"
         },
         "kind": "REMOTE",
         "name": {
           "metadata": {
-            "label": "onCompanyPropertychange",
-            "description": "Triggers when a company property is changed"
+            "label": "onConversationPropertychange",
+            "description": "Triggers when a conversation property is changed"
           },
-          "placeholder": "onCompanyPropertychange",
-          "value": "onCompanyPropertychange",
+          "placeholder": "onConversationPropertychange",
+          "value": "onConversationPropertychange",
+          "types": [
+            {
+              "fieldType": "IDENTIFIER",
+              "selected": true
+            }
+          ],
+          "enabled": true,
+          "editable": false,
+          "optional": false,
+          "advanced": false
+        },
+        "parameters": [
+          {
+            "metadata": {
+              "label": "event",
+              "description": "The HubSpot webhook event"
+            },
+            "kind": "REQUIRED",
+            "type": {
+              "metadata": {
+                "label": "Parameter Type",
+                "description": "The type of the parameter"
+              },
+              "placeholder": "hubspot:WebhookEvent",
+              "value": "hubspot:WebhookEvent",
+              "types": [
+                {
+                  "fieldType": "TYPE",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": false,
+              "optional": true,
+              "advanced": false
+            },
+            "name": {
+              "metadata": {
+                "label": "event",
+                "description": "The HubSpot webhook event"
+              },
+              "placeholder": "event",
+              "value": "event",
+              "types": [
+                {
+                  "fieldType": "IDENTIFIER",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": true,
+              "optional": false,
+              "advanced": false
+            },
+            "defaultValue": {
+              "metadata": {
+                "label": "Default Value",
+                "description": "The default value of the parameter"
+              },
+              "placeholder": "",
+              "value": "",
+              "types": [
+                {
+                  "fieldType": "EXPRESSION",
+                  "selected": true
+                }
+              ],
+              "enabled": true,
+              "editable": true,
+              "optional": true,
+              "advanced": false
+            },
+            "enabled": true,
+            "editable": true,
+            "optional": false,
+            "advanced": false,
+            "hidden": false,
+            "isGraphqlId": false
+          }
+        ],
+        "returnType": {
+          "hasError": true,
+          "isGraphqlId": false,
+          "metadata": {
+            "label": "Return Type",
+            "description": "The return type of the function"
+          },
+          "placeholder": "error?",
+          "value": "error?",
+          "types": [
+            {
+              "fieldType": "TYPE",
+              "selected": true
+            }
+          ],
+          "enabled": true,
+          "editable": false,
+          "optional": true,
+          "advanced": false
+        },
+        "enabled": false,
+        "optional": false,
+        "editable": false,
+        "canAddParameters": false
+      },
+      {
+        "metadata": {
+          "label": "onConversationPrivacydeletion",
+          "description": "Triggers when a conversation is deleted for privacy (GDPR) reasons"
+        },
+        "kind": "REMOTE",
+        "name": {
+          "metadata": {
+            "label": "onConversationPrivacydeletion",
+            "description": "Triggers when a conversation is deleted for privacy (GDPR) reasons"
+          },
+          "placeholder": "onConversationPrivacydeletion",
+          "value": "onConversationPrivacydeletion",
           "types": [
             {
               "fieldType": "IDENTIFIER",
@@ -578,21 +683,21 @@
       },
       {
         "metadata": {
-          "label": "onCompanyAssociationchange",
-          "description": "Triggers when a company association is changed"
+          "label": "onConversationNewmessage",
+          "description": "Triggers when a new message is received in a conversation"
         },
         "kind": "REMOTE",
         "name": {
           "metadata": {
-            "label": "onCompanyAssociationchange",
-            "description": "Triggers when a company association is changed"
+            "label": "onConversationNewmessage",
+            "description": "Triggers when a new message is received in a conversation"
           },
-          "placeholder": "onCompanyAssociationchange",
-          "value": "onCompanyAssociationchange",
+          "placeholder": "onConversationNewmessage",
+          "value": "onConversationNewmessage",
           "types": [
             {
               "fieldType": "IDENTIFIER",
-              "selected": true
+              "selected": false
             }
           ],
           "enabled": true,
@@ -689,246 +794,23 @@
           "optional": true,
           "advanced": false
         },
-        "enabled": false,
+        "enabled": true,
         "optional": false,
         "editable": false,
-        "canAddParameters": false
-      },
-      {
-        "metadata": {
-          "label": "onCompanyMerge",
-          "description": "Triggers when companies are merged"
-        },
-        "kind": "REMOTE",
-        "name": {
-          "metadata": {
-            "label": "onCompanyMerge",
-            "description": "Triggers when companies are merged"
-          },
-          "placeholder": "onCompanyMerge",
-          "value": "onCompanyMerge",
-          "types": [
-            {
-              "fieldType": "IDENTIFIER",
-              "selected": true
+        "canAddParameters": false,
+        "codedata": {
+          "lineRange": {
+            "fileName": "main.bal",
+            "startLine": {
+              "line": 13,
+              "offset": 4
+            },
+            "endLine": {
+              "line": 19,
+              "offset": 5
             }
-          ],
-          "enabled": true,
-          "editable": false,
-          "optional": false,
-          "advanced": false
-        },
-        "parameters": [
-          {
-            "metadata": {
-              "label": "event",
-              "description": "The HubSpot webhook event"
-            },
-            "kind": "REQUIRED",
-            "type": {
-              "metadata": {
-                "label": "Parameter Type",
-                "description": "The type of the parameter"
-              },
-              "placeholder": "hubspot:WebhookEvent",
-              "value": "hubspot:WebhookEvent",
-              "types": [
-                {
-                  "fieldType": "TYPE",
-                  "selected": true
-                }
-              ],
-              "enabled": true,
-              "editable": false,
-              "optional": true,
-              "advanced": false
-            },
-            "name": {
-              "metadata": {
-                "label": "event",
-                "description": "The HubSpot webhook event"
-              },
-              "placeholder": "event",
-              "value": "event",
-              "types": [
-                {
-                  "fieldType": "IDENTIFIER",
-                  "selected": true
-                }
-              ],
-              "enabled": true,
-              "editable": true,
-              "optional": false,
-              "advanced": false
-            },
-            "defaultValue": {
-              "metadata": {
-                "label": "Default Value",
-                "description": "The default value of the parameter"
-              },
-              "placeholder": "",
-              "value": "",
-              "types": [
-                {
-                  "fieldType": "EXPRESSION",
-                  "selected": true
-                }
-              ],
-              "enabled": true,
-              "editable": true,
-              "optional": true,
-              "advanced": false
-            },
-            "enabled": true,
-            "editable": true,
-            "optional": false,
-            "advanced": false,
-            "hidden": false,
-            "isGraphqlId": false
           }
-        ],
-        "returnType": {
-          "hasError": true,
-          "isGraphqlId": false,
-          "metadata": {
-            "label": "Return Type",
-            "description": "The return type of the function"
-          },
-          "placeholder": "error?",
-          "value": "error?",
-          "types": [
-            {
-              "fieldType": "TYPE",
-              "selected": true
-            }
-          ],
-          "enabled": true,
-          "editable": false,
-          "optional": true,
-          "advanced": false
-        },
-        "enabled": false,
-        "optional": false,
-        "editable": false,
-        "canAddParameters": false
-      },
-      {
-        "metadata": {
-          "label": "onCompanyRestore",
-          "description": "Triggers when a company is restored"
-        },
-        "kind": "REMOTE",
-        "name": {
-          "metadata": {
-            "label": "onCompanyRestore",
-            "description": "Triggers when a company is restored"
-          },
-          "placeholder": "onCompanyRestore",
-          "value": "onCompanyRestore",
-          "types": [
-            {
-              "fieldType": "IDENTIFIER",
-              "selected": true
-            }
-          ],
-          "enabled": true,
-          "editable": false,
-          "optional": false,
-          "advanced": false
-        },
-        "parameters": [
-          {
-            "metadata": {
-              "label": "event",
-              "description": "The HubSpot webhook event"
-            },
-            "kind": "REQUIRED",
-            "type": {
-              "metadata": {
-                "label": "Parameter Type",
-                "description": "The type of the parameter"
-              },
-              "placeholder": "hubspot:WebhookEvent",
-              "value": "hubspot:WebhookEvent",
-              "types": [
-                {
-                  "fieldType": "TYPE",
-                  "selected": true
-                }
-              ],
-              "enabled": true,
-              "editable": false,
-              "optional": true,
-              "advanced": false
-            },
-            "name": {
-              "metadata": {
-                "label": "event",
-                "description": "The HubSpot webhook event"
-              },
-              "placeholder": "event",
-              "value": "event",
-              "types": [
-                {
-                  "fieldType": "IDENTIFIER",
-                  "selected": true
-                }
-              ],
-              "enabled": true,
-              "editable": true,
-              "optional": false,
-              "advanced": false
-            },
-            "defaultValue": {
-              "metadata": {
-                "label": "Default Value",
-                "description": "The default value of the parameter"
-              },
-              "placeholder": "",
-              "value": "",
-              "types": [
-                {
-                  "fieldType": "EXPRESSION",
-                  "selected": true
-                }
-              ],
-              "enabled": true,
-              "editable": true,
-              "optional": true,
-              "advanced": false
-            },
-            "enabled": true,
-            "editable": true,
-            "optional": false,
-            "advanced": false,
-            "hidden": false,
-            "isGraphqlId": false
-          }
-        ],
-        "returnType": {
-          "hasError": true,
-          "isGraphqlId": false,
-          "metadata": {
-            "label": "Return Type",
-            "description": "The return type of the function"
-          },
-          "placeholder": "error?",
-          "value": "error?",
-          "types": [
-            {
-              "fieldType": "TYPE",
-              "selected": true
-            }
-          ],
-          "enabled": true,
-          "editable": false,
-          "optional": true,
-          "advanced": false
-        },
-        "enabled": false,
-        "optional": false,
-        "editable": false,
-        "canAddParameters": false
+        }
       }
     ]
   }
