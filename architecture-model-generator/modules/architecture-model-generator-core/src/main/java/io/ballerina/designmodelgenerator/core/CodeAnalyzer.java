@@ -154,7 +154,8 @@ public class CodeAnalyzer extends NodeVisitor {
             ServiceDeclarationSymbol serviceDeclarationSymbol = (ServiceDeclarationSymbol) serviceSymbol.get();
             displayName = getDisplayName(serviceDeclarationSymbol.annotAttachments());
             Optional<TypeSymbol> typeDescriptor = serviceDeclarationSymbol.typeDescriptor();
-            if (typeDescriptor.isPresent() && typeDescriptor.get().getModule().isPresent()) {
+            if (serviceDeclarationNode.typeDescriptor().isPresent()
+                    && typeDescriptor.isPresent() && typeDescriptor.get().getModule().isPresent()) {
                 TypeSymbol typeSymbol = typeDescriptor.get();
                 serviceType = CommonUtils.getTypeSignature(typeSymbol,
                         CommonUtils.ModuleInfo.from(typeSymbol.getModule().get().id()));
