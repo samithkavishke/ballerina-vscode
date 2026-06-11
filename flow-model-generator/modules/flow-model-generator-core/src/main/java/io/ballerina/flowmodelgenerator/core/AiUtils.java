@@ -642,7 +642,7 @@ public class AiUtils {
     }
 
     // Compares only major.minor (ignores patch) — patch bumps within the same minor are backward-compatible.
-    private static int compareMajorMinor(String version1, String version2) {
+    static int compareMajorMinor(String version1, String version2) {
         String[] parts1 = version1.split("\\.");
         String[] parts2 = version2.split("\\.");
         for (int i = 0; i < 2; i++) {
