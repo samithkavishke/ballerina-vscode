@@ -11,4 +11,4 @@ sticky = true
 [[dependency]]
 org = "ballerina"
 name = "ai"
-version = "1.11.3"
+version = "1.11.2"
