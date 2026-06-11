@@ -76,10 +76,11 @@ import static io.ballerina.servicemodelgenerator.extension.util.Utils.applyEnabl
 
 /**
  * Builder class for HubSpot trigger service.
- * Supports "Create new" and "Use existing" listener selection with 4 service types:
- * CompanyService, ContactService, ConversationService, DealService.
+ * Supports "Create new" and "Use existing" listener selection with 7 service types:
+ * CompanyService, ContactService, ConversationService, DealService, TicketService,
+ * LineItemService, ProductService.
  *
- * @since 1.7.0
+ * @since 1.7.1
  */
 public class HubspotTriggerServiceBuilder extends AbstractServiceBuilder {
 
