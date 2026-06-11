@@ -1,0 +1,34 @@
+{
+  "description": "Design diagram generation for AI DataLoader connection",
+  "projectPath": "project_10",
+  "output": {
+    "designModel": {
+      "connections": [
+        {
+          "symbol": "aiTextdataloader",
+          "location": {
+            "filePath": "project_10/dataloader.bal",
+            "startLine": {
+              "line": 2,
+              "offset": 0
+            },
+            "endLine": {
+              "line": 2,
+              "offset": 67
+            }
+          },
+          "scope": "GLOBAL",
+          "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_ai_1.11.3.png",
+          "dependentFunctions": [],
+          "dependentConnection": [],
+          "kind": "Connection",
+          "uuid": "4f349c7c-09ba-43a3-d46a-84db26dd07ca",
+          "enableFlowModel": false,
+          "sortText": "dataloader.bal2"
+        }
+      ],
+      "listeners": [],
+      "services": []
+    }
+  }
+}
