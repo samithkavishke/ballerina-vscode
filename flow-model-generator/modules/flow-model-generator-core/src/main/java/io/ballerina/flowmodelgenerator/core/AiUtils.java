@@ -641,9 +641,7 @@ public class AiUtils {
         return 0;
     }
 
-    // Compares only the major.minor components (ignores patch). Within the same major.minor,
-    // patch bumps are backward-compatible, so modules built against a newer patch of the same
-    // minor version are safe to show even if the user's local distribution is on an older patch.
+    // Compares only major.minor (ignores patch) — patch bumps within the same minor are backward-compatible.
     private static int compareMajorMinor(String version1, String version2) {
         String[] parts1 = version1.split("\\.");
         String[] parts2 = version2.split("\\.");
