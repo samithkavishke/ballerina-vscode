@@ -239,6 +239,56 @@
         },
         {
           "metadata": {
+            "label": "microsoft.sharepoint.pages",
+            "description": "",
+            "keywords": []
+          },
+          "items": [
+            {
+              "metadata": {
+                "label": "ConfigurationManagerClientEnabledFeatures",
+                "description": "configuration Manager client enabled features",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_microsoft.sharepoint.pages_1.1.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "microsoft.sharepoint.pages",
+                "packageName": "microsoft.sharepoint.pages",
+                "symbol": "ConfigurationManagerClientEnabledFeatures",
+                "version": "1.1.1"
+              },
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "metadata": {
+            "label": "microsoft.sharepoint.sites",
+            "description": "",
+            "keywords": []
+          },
+          "items": [
+            {
+              "metadata": {
+                "label": "ConfigurationManagerClientEnabledFeatures",
+                "description": "configuration Manager client enabled features",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_microsoft.sharepoint.sites_1.0.2.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "microsoft.sharepoint.sites",
+                "packageName": "microsoft.sharepoint.sites",
+                "symbol": "ConfigurationManagerClientEnabledFeatures",
+                "version": "1.0.2"
+              },
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "metadata": {
             "label": "commercetools.configuration",
             "description": "",
             "keywords": []
@@ -314,7 +364,7 @@
         },
         {
           "metadata": {
-            "label": "salesforce.bulk",
+            "label": "microsoft.onenote",
             "description": "",
             "keywords": []
           },
@@ -322,16 +372,16 @@
             {
               "metadata": {
                 "label": "ConnectionConfig",
-                "description": "Salesforce client configuration.",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_salesforce_8.6.3.png"
+                "description": "Client configuration details.",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_microsoft.onenote_2.4.0.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
                 "org": "ballerinax",
-                "module": "salesforce.bulk",
-                "packageName": "salesforce",
+                "module": "microsoft.onenote",
+                "packageName": "microsoft.onenote",
                 "symbol": "ConnectionConfig",
-                "version": "8.6.3"
+                "version": "2.4.0"
               },
               "enabled": true
             }
@@ -348,7 +398,7 @@
               "metadata": {
                 "label": "ConnectionConfig",
                 "description": "Salesforce client configuration.\n",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_salesforce_8.6.3.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_salesforce_8.7.0.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -356,7 +406,7 @@
                 "module": "salesforce.soap",
                 "packageName": "salesforce",
                 "symbol": "ConnectionConfig",
-                "version": "8.6.3"
+                "version": "8.7.0"
               },
               "enabled": true
             }
@@ -364,7 +414,7 @@
         },
         {
           "metadata": {
-            "label": "azure.ad",
+            "label": "salesforce.bulk",
             "description": "",
             "keywords": []
           },
@@ -372,16 +422,16 @@
             {
               "metadata": {
                 "label": "ConnectionConfig",
-                "description": "Client configuration details.",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_azure.ad_2.5.0.png"
+                "description": "Salesforce client configuration.",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_salesforce_8.7.0.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
                 "org": "ballerinax",
-                "module": "azure.ad",
-                "packageName": "azure.ad",
+                "module": "salesforce.bulk",
+                "packageName": "salesforce",
                 "symbol": "ConnectionConfig",
-                "version": "2.5.0"
+                "version": "8.7.0"
               },
               "enabled": true
             }
@@ -414,6 +464,31 @@
         },
         {
           "metadata": {
+            "label": "azure.ad",
+            "description": "",
+            "keywords": []
+          },
+          "items": [
+            {
+              "metadata": {
+                "label": "ConnectionConfig",
+                "description": "Client configuration details.",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_azure.ad_2.5.0.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "azure.ad",
+                "packageName": "azure.ad",
+                "symbol": "ConnectionConfig",
+                "version": "2.5.0"
+              },
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "metadata": {
             "label": "googleapis.drive",
             "description": "",
             "keywords": []
@@ -423,7 +498,7 @@
               "metadata": {
                 "label": "ConnectionConfig",
                 "description": "Client configuration details.",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_googleapis.drive_3.4.1.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_googleapis.drive_3.5.0.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -431,7 +506,7 @@
                 "module": "googleapis.drive",
                 "packageName": "googleapis.drive",
                 "symbol": "ConnectionConfig",
-                "version": "3.4.1"
+                "version": "3.5.0"
               },
               "enabled": true
             }
@@ -507,72 +582,6 @@
                 "packageName": "microsoft.teams",
                 "symbol": "ConnectionConfig",
                 "version": "2.4.0"
-              },
-              "enabled": true
-            }
-          ]
-        },
-        {
-          "metadata": {
-            "label": "microsoft.onenote",
-            "description": "",
-            "keywords": []
-          },
-          "items": [
-            {
-              "metadata": {
-                "label": "ConnectionConfig",
-                "description": "Client configuration details.",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_microsoft.onenote_2.4.0.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "microsoft.onenote",
-                "packageName": "microsoft.onenote",
-                "symbol": "ConnectionConfig",
-                "version": "2.4.0"
-              },
-              "enabled": true
-            }
-          ]
-        },
-        {
-          "metadata": {
-            "label": "graphql",
-            "description": "",
-            "keywords": []
-          },
-          "items": [
-            {
-              "metadata": {
-                "label": "Graphiql",
-                "description": "Represent GraphiQL client configurations\n",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_graphql_1.17.0.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerina",
-                "module": "graphql",
-                "packageName": "graphql",
-                "symbol": "Graphiql",
-                "version": "1.17.0"
-              },
-              "enabled": true
-            },
-            {
-              "metadata": {
-                "label": "CookieConfig",
-                "description": "Client configuration for cookies.",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_graphql_1.17.0.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerina",
-                "module": "graphql",
-                "packageName": "graphql",
-                "symbol": "CookieConfig",
-                "version": "1.17.0"
               },
               "enabled": true
             }

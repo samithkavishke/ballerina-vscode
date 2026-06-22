@@ -78,31 +78,6 @@
         },
         {
           "metadata": {
-            "label": "lang.map",
-            "description": "",
-            "keywords": []
-          },
-          "items": [
-            {
-              "metadata": {
-                "label": "'map",
-                "description": "Applies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n\n```ballerina\nmap<int> marks = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60};\nmarks.map(m => m > 50) ⇒ {\"Carl\":true,\"Bob\":false,\"Max\":true}\n```\n",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_lang.map_0.0.0.png"
-              },
-              "codedata": {
-                "node": "FUNCTION_CALL",
-                "org": "ballerina",
-                "module": "lang.map",
-                "packageName": "lang.map",
-                "symbol": "'map",
-                "version": "0.0.0"
-              },
-              "enabled": true
-            }
-          ]
-        },
-        {
-          "metadata": {
             "label": "lang.table",
             "description": "",
             "keywords": []
@@ -144,6 +119,31 @@
                 "org": "ballerina",
                 "module": "lang.stream",
                 "packageName": "lang.stream",
+                "symbol": "'map",
+                "version": "0.0.0"
+              },
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "metadata": {
+            "label": "lang.map",
+            "description": "",
+            "keywords": []
+          },
+          "items": [
+            {
+              "metadata": {
+                "label": "'map",
+                "description": "Applies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n\n```ballerina\nmap<int> marks = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60};\nmarks.map(m => m > 50) ⇒ {\"Carl\":true,\"Bob\":false,\"Max\":true}\n```\n",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_lang.map_0.0.0.png"
+              },
+              "codedata": {
+                "node": "FUNCTION_CALL",
+                "org": "ballerina",
+                "module": "lang.map",
+                "packageName": "lang.map",
                 "symbol": "'map",
                 "version": "0.0.0"
               },
@@ -278,7 +278,7 @@
           "metadata": {
             "label": "Asb Administrator",
             "description": "Ballerina Service Bus connector provides the capability to access Azure Service Bus SDK.\nService Bus API provides data access to highly reliable queues and publish/subscribe topics of Azure Service Bus with deep feature capabilities.",
-            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_asb_3.9.1.png"
+            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_asb_3.10.0.png"
           },
           "codedata": {
             "node": "NEW_CONNECTION",
@@ -287,7 +287,7 @@
             "packageName": "asb",
             "object": "Administrator",
             "symbol": "init",
-            "version": "3.9.1",
+            "version": "3.10.0",
             "isGenerated": false
           },
           "enabled": true
@@ -306,6 +306,24 @@
             "object": "AdvancedClient",
             "symbol": "init",
             "version": "2.2.2",
+            "isGenerated": false
+          },
+          "enabled": true
+        },
+        {
+          "metadata": {
+            "label": "Chat AppHomeCaller",
+            "description": "Caller for app home events (`onAppHome`).\n\nThe `respond` method sets the card to display in the app home tab. The caller\nautomatically wraps the `Card` in the required `RenderActions` / `pushCard`\nstructure.\n\n**Example:**\n```ballerina\nremote function onAppHome(chat:ChatEvent event, chat:AppHomeCaller caller) returns error? {\n    check caller->respond({\n        sections: [{\n            widgets: [{ textParagraph: { text: \"Welcome to the app home!\" } }]\n        }]\n    });\n}\n```",
+            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_googleapis.chat_0.1.0.png"
+          },
+          "codedata": {
+            "node": "NEW_CONNECTION",
+            "org": "ballerinax",
+            "module": "googleapis.chat",
+            "packageName": "googleapis.chat",
+            "object": "AppHomeCaller",
+            "symbol": "init",
+            "version": "0.1.0",
             "isGenerated": false
           },
           "enabled": true
@@ -366,24 +384,6 @@
         },
         {
           "metadata": {
-            "label": "Solace Caller",
-            "description": "Represents a Solace caller, which can be used to mark Solace message as received.",
-            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_solace_0.3.1.png"
-          },
-          "codedata": {
-            "node": "NEW_CONNECTION",
-            "org": "ballerinax",
-            "module": "solace",
-            "packageName": "solace",
-            "object": "Caller",
-            "symbol": "init",
-            "version": "0.3.1",
-            "isGenerated": false
-          },
-          "enabled": true
-        },
-        {
-          "metadata": {
             "label": "Ibmmq Caller",
             "description": "Represents a IBM MQ caller, which can be used to mark IBM MQ message as received.",
             "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_ibm.ibmmq_1.4.4.png"
@@ -420,36 +420,18 @@
         },
         {
           "metadata": {
-            "label": "Ai Chat",
-            "description": "A client class for interacting with a chat service.",
-            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_ai_1.11.1.png"
+            "label": "Chat CardClickedCaller",
+            "description": "Caller for card-clicked events (`onCardClicked`).\n\nThe `respond` method accepts either a `Message` (for regular card interactions\nincluding dialogs, card updates, and link preview updates) or a `Card` (for\ncard interactions originating from the app home, auto-wrapped in RenderActions).\n\n**Example — update a card:**\n```ballerina\nremote function onCardClicked(chat:ChatEvent event, chat:CardClickedCaller caller) returns error? {\n    check caller->respond({\n        actionResponse: { 'type: chat:UPDATE_MESSAGE },\n        cardsV2: [{ cardId: \"updated\", card: { ... } }]\n    });\n}\n```\n\n**Example — open a dialog:**\n```ballerina\nremote function onCardClicked(chat:ChatEvent event, chat:CardClickedCaller caller) returns error? {\n    check caller->respond({\n        actionResponse: {\n            'type: chat:DIALOG,\n            dialogAction: { dialog: { body: myDialogCard } }\n        }\n    });\n}\n```",
+            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_googleapis.chat_0.1.0.png"
           },
           "codedata": {
             "node": "NEW_CONNECTION",
-            "org": "ballerina",
-            "module": "ai",
-            "packageName": "ai",
-            "object": "ChatClient",
+            "org": "ballerinax",
+            "module": "googleapis.chat",
+            "packageName": "googleapis.chat",
+            "object": "CardClickedCaller",
             "symbol": "init",
-            "version": "1.11.1",
-            "isGenerated": false
-          },
-          "enabled": true
-        },
-        {
-          "metadata": {
-            "label": "Semp",
-            "description": "SEMP (starting in `v2`) is a RESTful API for configuring, monitoring, and administering a Solace PubSub+ broker. This specification defines the following API:\n\n\nAPI|Base Path|Purpose\n:---|:---|:---\nConfiguration|/SEMP/v2/config|Reading and writing configuration\n\n\n\nThe following APIs are also available:\n\n\nAPI|Base Path|Purpose\n:---|:---|:---\nAction|/SEMP/v2/action|Performing actions\nMonitoring|/SEMP/v2/monitor|Querying operational state\n\n\n\nFor tutorials, architectural and protocol design documentation, and other information about the SEMP API, consult the [SEMP documentation](https://docs.solace.com/Admin/SEMP/Using-SEMP.htm) on the Solace website. The SEMP API specifications are also [available for download](https://solace.com/downloads/).\n\nIf you need additional support, please contact us at [support@solace.com](mailto:support@solace.com).",
-            "icon": "https://bcentral-packageicons.azureedge.net/images/xlibb_solace.semp_0.2.0.png"
-          },
-          "codedata": {
-            "node": "NEW_CONNECTION",
-            "org": "xlibb",
-            "module": "solace.semp",
-            "packageName": "solace.semp",
-            "object": "Client",
-            "symbol": "init",
-            "version": "0.2.0",
+            "version": "0.1.0",
             "isGenerated": false
           },
           "enabled": true

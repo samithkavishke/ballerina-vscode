@@ -10,7 +10,7 @@
       "metadata": {
         "label": "HTTP",
         "description": "The HTTP client provides functionality to connect to remote HTTP services and perform requests using standard HTTP methods like GET, POST, PUT, DELETE, etc.\n",
-        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_http_2.16.2.png",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_http_2.16.3.png",
         "data": {
           "isAgentSupport": false
         }
@@ -22,7 +22,7 @@
         "packageName": "http",
         "object": "Client",
         "symbol": "init",
-        "version": "2.16.2",
+        "version": "2.16.3",
         "isGenerated": false
       },
       "enabled": true
@@ -323,27 +323,6 @@
     },
     {
       "metadata": {
-        "label": "Websub Subscription",
-        "description": "The HTTP based client for WebSub subscription and unsubscription.",
-        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_websub_2.15.0.png",
-        "data": {
-          "isAgentSupport": false
-        }
-      },
-      "codedata": {
-        "node": "NEW_CONNECTION",
-        "org": "ballerina",
-        "module": "websub",
-        "packageName": "websub",
-        "object": "SubscriptionClient",
-        "symbol": "init",
-        "version": "2.15.0",
-        "isGenerated": false
-      },
-      "enabled": true
-    },
-    {
-      "metadata": {
         "label": "Websubhub Hub",
         "description": "HTTP Based client for WebSub content publishing to subscribers",
         "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_websubhub_1.16.0.png",
@@ -359,6 +338,27 @@
         "object": "HubClient",
         "symbol": "init",
         "version": "1.16.0",
+        "isGenerated": false
+      },
+      "enabled": true
+    },
+    {
+      "metadata": {
+        "label": "Websub Subscription",
+        "description": "The HTTP based client for WebSub subscription and unsubscription.",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_websub_2.15.0.png",
+        "data": {
+          "isAgentSupport": false
+        }
+      },
+      "codedata": {
+        "node": "NEW_CONNECTION",
+        "org": "ballerina",
+        "module": "websub",
+        "packageName": "websub",
+        "object": "SubscriptionClient",
+        "symbol": "init",
+        "version": "2.15.0",
         "isGenerated": false
       },
       "enabled": true
@@ -409,7 +409,7 @@
       "metadata": {
         "label": "Box",
         "description": "This is a generated connector for [Box Platform API v2.0.0](https://developer.box.com/guides/) OpenAPI specification.\n[Box Platform](https://box.dev) provides functionality to provide access to content stored within [Box](https://box.com). It provides endpoints for basic manipulation of files and folders, management of users within an enterprise, as well as more complex topics such as legal holds and retention policies.",
-        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_box_1.5.1.png",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_box_1.5.2.png",
         "data": {
           "isAgentSupport": false
         }
@@ -421,7 +421,7 @@
         "packageName": "box",
         "object": "Client",
         "symbol": "init",
-        "version": "1.5.1",
+        "version": "1.5.2",
         "isGenerated": false
       },
       "enabled": true
