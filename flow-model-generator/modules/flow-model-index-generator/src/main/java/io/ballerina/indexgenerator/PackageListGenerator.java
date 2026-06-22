@@ -1,6 +1,7 @@
 package io.ballerina.indexgenerator;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.ballerina.centralconnector.CentralAPI;
 import io.ballerina.centralconnector.RemoteCentral;
 import io.ballerina.centralconnector.response.PackageResponse;
@@ -26,7 +27,7 @@ class PackageListGenerator {
 
         Map<String, List<PackageMetadataInfo>> packagesMap =
                 Map.of("ballerina", ballerinaPackages, "ballerinax", ballerinaxPackages);
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         String destinationPath = Path.of("flow-model-generator/modules/flow-model-index-generator/src/main/resources")
                 .resolve(PACKAGE_JSON_FILE)

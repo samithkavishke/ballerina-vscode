@@ -195,31 +195,6 @@
       "items": [
         {
           "metadata": {
-            "label": "jira",
-            "description": "",
-            "keywords": []
-          },
-          "items": [
-            {
-              "metadata": {
-                "label": "OperationMessage",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_jira_2.0.2.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "jira",
-                "packageName": "jira",
-                "symbol": "OperationMessage",
-                "version": "2.0.2"
-              },
-              "enabled": true
-            }
-          ]
-        },
-        {
-          "metadata": {
             "label": "formstack",
             "description": "",
             "keywords": []
@@ -238,6 +213,31 @@
                 "packageName": "formstack",
                 "symbol": "Operation",
                 "version": "1.3.1"
+              },
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "metadata": {
+            "label": "jira",
+            "description": "",
+            "keywords": []
+          },
+          "items": [
+            {
+              "metadata": {
+                "label": "OperationMessage",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_jira_2.0.2.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "jira",
+                "packageName": "jira",
+                "symbol": "OperationMessage",
+                "version": "2.0.2"
               },
               "enabled": true
             }
@@ -598,7 +598,7 @@
               "metadata": {
                 "label": "OperationConfig",
                 "description": "Operation configuration.\n",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4_6.3.2.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4_6.3.3.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -606,7 +606,7 @@
                 "module": "health.fhir.r4",
                 "packageName": "health.fhir.r4",
                 "symbol": "OperationConfig",
-                "version": "6.3.2"
+                "version": "6.3.3"
               },
               "enabled": true
             },
@@ -614,7 +614,7 @@
               "metadata": {
                 "label": "OperationOutcomeIssueSeverity",
                 "description": "OperationOutcomeIssueSeverity enum",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4_6.3.2.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4_6.3.3.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -622,7 +622,7 @@
                 "module": "health.fhir.r4",
                 "packageName": "health.fhir.r4",
                 "symbol": "OperationOutcomeIssueSeverity",
-                "version": "6.3.2"
+                "version": "6.3.3"
               },
               "enabled": true
             }
@@ -680,7 +680,7 @@
               "metadata": {
                 "label": "OperationdefinitionAllowedType",
                 "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.3.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.4.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -688,7 +688,7 @@
                 "module": "health.fhir.r4.international401",
                 "packageName": "health.fhir.r4.international401",
                 "symbol": "OperationdefinitionAllowedType",
-                "version": "4.0.3"
+                "version": "4.0.4"
               },
               "enabled": true
             },
@@ -696,7 +696,7 @@
               "metadata": {
                 "label": "OperationdefinitionProfile",
                 "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.3.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.4.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -704,7 +704,7 @@
                 "module": "health.fhir.r4.international401",
                 "packageName": "health.fhir.r4.international401",
                 "symbol": "OperationdefinitionProfile",
-                "version": "4.0.3"
+                "version": "4.0.4"
               },
               "enabled": true
             },
@@ -712,7 +712,7 @@
               "metadata": {
                 "label": "OperationoutcomeAuthority",
                 "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.3.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.4.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -720,7 +720,7 @@
                 "module": "health.fhir.r4.international401",
                 "packageName": "health.fhir.r4.international401",
                 "symbol": "OperationoutcomeAuthority",
-                "version": "4.0.3"
+                "version": "4.0.4"
               },
               "enabled": true
             },
@@ -728,7 +728,7 @@
               "metadata": {
                 "label": "OperationoutcomeDetectedIssue",
                 "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.3.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.4.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -736,7 +736,7 @@
                 "module": "health.fhir.r4.international401",
                 "packageName": "health.fhir.r4.international401",
                 "symbol": "OperationoutcomeDetectedIssue",
-                "version": "4.0.3"
+                "version": "4.0.4"
               },
               "enabled": true
             },
@@ -744,7 +744,7 @@
               "metadata": {
                 "label": "OperationoutcomeFile",
                 "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.3.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.4.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -752,7 +752,7 @@
                 "module": "health.fhir.r4.international401",
                 "packageName": "health.fhir.r4.international401",
                 "symbol": "OperationoutcomeFile",
-                "version": "4.0.3"
+                "version": "4.0.4"
               },
               "enabled": true
             },
@@ -760,7 +760,7 @@
               "metadata": {
                 "label": "OperationoutcomeIssueCol",
                 "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.3.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.4.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -768,7 +768,7 @@
                 "module": "health.fhir.r4.international401",
                 "packageName": "health.fhir.r4.international401",
                 "symbol": "OperationoutcomeIssueCol",
-                "version": "4.0.3"
+                "version": "4.0.4"
               },
               "enabled": true
             },
@@ -776,7 +776,7 @@
               "metadata": {
                 "label": "OperationoutcomeIssueLine",
                 "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.3.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.fhir.r4.international401_4.0.4.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
@@ -784,7 +784,7 @@
                 "module": "health.fhir.r4.international401",
                 "packageName": "health.fhir.r4.international401",
                 "symbol": "OperationoutcomeIssueLine",
-                "version": "4.0.3"
+                "version": "4.0.4"
               },
               "enabled": true
             }

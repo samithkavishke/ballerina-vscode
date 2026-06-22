@@ -125,143 +125,6 @@
       "items": [
         {
           "metadata": {
-            "label": "discord",
-            "description": "",
-            "keywords": []
-          },
-          "items": [
-            {
-              "metadata": {
-                "label": "200AnyOf4",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "discord",
-                "packageName": "discord",
-                "symbol": "200AnyOf4",
-                "version": "2.0.1"
-              },
-              "enabled": true
-            },
-            {
-              "metadata": {
-                "label": "200AnyOf41",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "discord",
-                "packageName": "discord",
-                "symbol": "200AnyOf41",
-                "version": "2.0.1"
-              },
-              "enabled": true
-            },
-            {
-              "metadata": {
-                "label": "200OneOf43",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "discord",
-                "packageName": "discord",
-                "symbol": "200OneOf43",
-                "version": "2.0.1"
-              },
-              "enabled": true
-            },
-            {
-              "metadata": {
-                "label": "200OneOf5",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "discord",
-                "packageName": "discord",
-                "symbol": "200OneOf5",
-                "version": "2.0.1"
-              },
-              "enabled": true
-            },
-            {
-              "metadata": {
-                "label": "200OneOf41",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "discord",
-                "packageName": "discord",
-                "symbol": "200OneOf41",
-                "version": "2.0.1"
-              },
-              "enabled": true
-            },
-            {
-              "metadata": {
-                "label": "200OneOf42",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "discord",
-                "packageName": "discord",
-                "symbol": "200OneOf42",
-                "version": "2.0.1"
-              },
-              "enabled": true
-            },
-            {
-              "metadata": {
-                "label": "200OneOf4",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "discord",
-                "packageName": "discord",
-                "symbol": "200OneOf4",
-                "version": "2.0.1"
-              },
-              "enabled": true
-            },
-            {
-              "metadata": {
-                "label": "200OneOf6",
-                "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
-              },
-              "codedata": {
-                "node": "TYPEDESC",
-                "org": "ballerinax",
-                "module": "discord",
-                "packageName": "discord",
-                "symbol": "200OneOf6",
-                "version": "2.0.1"
-              },
-              "enabled": true
-            }
-          ]
-        },
-        {
-          "metadata": {
             "label": "slack",
             "description": "",
             "keywords": []
@@ -559,24 +422,136 @@
         },
         {
           "metadata": {
-            "label": "github",
+            "label": "discord",
             "description": "",
             "keywords": []
           },
           "items": [
             {
               "metadata": {
-                "label": "Inline_response_200",
+                "label": "200AnyOf4",
                 "description": "",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_github_5.1.0.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
               },
               "codedata": {
                 "node": "TYPEDESC",
                 "org": "ballerinax",
-                "module": "github",
-                "packageName": "github",
-                "symbol": "Inline_response_200",
-                "version": "5.1.0"
+                "module": "discord",
+                "packageName": "discord",
+                "symbol": "200AnyOf4",
+                "version": "2.0.1"
+              },
+              "enabled": true
+            },
+            {
+              "metadata": {
+                "label": "200AnyOf41",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "discord",
+                "packageName": "discord",
+                "symbol": "200AnyOf41",
+                "version": "2.0.1"
+              },
+              "enabled": true
+            },
+            {
+              "metadata": {
+                "label": "200OneOf43",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "discord",
+                "packageName": "discord",
+                "symbol": "200OneOf43",
+                "version": "2.0.1"
+              },
+              "enabled": true
+            },
+            {
+              "metadata": {
+                "label": "200OneOf5",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "discord",
+                "packageName": "discord",
+                "symbol": "200OneOf5",
+                "version": "2.0.1"
+              },
+              "enabled": true
+            },
+            {
+              "metadata": {
+                "label": "200OneOf41",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "discord",
+                "packageName": "discord",
+                "symbol": "200OneOf41",
+                "version": "2.0.1"
+              },
+              "enabled": true
+            },
+            {
+              "metadata": {
+                "label": "200OneOf42",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "discord",
+                "packageName": "discord",
+                "symbol": "200OneOf42",
+                "version": "2.0.1"
+              },
+              "enabled": true
+            },
+            {
+              "metadata": {
+                "label": "200OneOf4",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "discord",
+                "packageName": "discord",
+                "symbol": "200OneOf4",
+                "version": "2.0.1"
+              },
+              "enabled": true
+            },
+            {
+              "metadata": {
+                "label": "200OneOf6",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_discord_2.0.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "discord",
+                "packageName": "discord",
+                "symbol": "200OneOf6",
+                "version": "2.0.1"
               },
               "enabled": true
             }
@@ -617,6 +592,22 @@
                 "module": "stripe",
                 "packageName": "stripe",
                 "symbol": "inline_response_200_5",
+                "version": "2.0.1"
+              },
+              "enabled": true
+            },
+            {
+              "metadata": {
+                "label": "inline_response_200_1",
+                "description": "",
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_stripe_2.0.1.png"
+              },
+              "codedata": {
+                "node": "TYPEDESC",
+                "org": "ballerinax",
+                "module": "stripe",
+                "packageName": "stripe",
+                "symbol": "inline_response_200_1",
                 "version": "2.0.1"
               },
               "enabled": true
