@@ -239,27 +239,6 @@
     },
     {
       "metadata": {
-        "label": "Mpm",
-        "description": "AWS Marketplace metering client.",
-        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_aws.marketplace.mpm_0.2.1.png",
-        "data": {
-          "isAgentSupport": false
-        }
-      },
-      "codedata": {
-        "node": "NEW_CONNECTION",
-        "org": "ballerinax",
-        "module": "aws.marketplace.mpm",
-        "packageName": "aws.marketplace.mpm",
-        "object": "Client",
-        "symbol": "init",
-        "version": "0.2.1",
-        "isGenerated": false
-      },
-      "enabled": true
-    },
-    {
-      "metadata": {
         "label": "Mpe",
         "description": "AWS Marketplace entitlement client.",
         "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_aws.marketplace.mpe_0.2.1.png",
@@ -281,9 +260,30 @@
     },
     {
       "metadata": {
+        "label": "Mpm",
+        "description": "AWS Marketplace metering client.",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_aws.marketplace.mpm_0.2.1.png",
+        "data": {
+          "isAgentSupport": false
+        }
+      },
+      "codedata": {
+        "node": "NEW_CONNECTION",
+        "org": "ballerinax",
+        "module": "aws.marketplace.mpm",
+        "packageName": "aws.marketplace.mpm",
+        "object": "Client",
+        "symbol": "init",
+        "version": "0.2.1",
+        "isGenerated": false
+      },
+      "enabled": true
+    },
+    {
+      "metadata": {
         "label": "Websocket",
         "description": "Represents a WebSocket synchronous client endpoint.",
-        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_websocket_2.15.2.png",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_websocket_2.15.3.png",
         "data": {
           "isAgentSupport": false
         }
@@ -295,7 +295,28 @@
         "packageName": "websocket",
         "object": "Client",
         "symbol": "init",
-        "version": "2.15.2",
+        "version": "2.15.3",
+        "isGenerated": false
+      },
+      "enabled": true
+    },
+    {
+      "metadata": {
+        "label": "Subscriptions",
+        "description": "",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_hubspot.marketing.subscriptions_2.0.1.png",
+        "data": {
+          "isAgentSupport": true
+        }
+      },
+      "codedata": {
+        "node": "NEW_CONNECTION",
+        "org": "ballerinax",
+        "module": "hubspot.marketing.subscriptions",
+        "packageName": "hubspot.marketing.subscriptions",
+        "object": "Client",
+        "symbol": "init",
+        "version": "2.0.1",
         "isGenerated": false
       },
       "enabled": true
@@ -323,9 +344,9 @@
     },
     {
       "metadata": {
-        "label": "Transactional",
+        "label": "Lists",
         "description": "",
-        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_hubspot.marketing.transactional_1.0.1.png",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_hubspot.crm.lists_1.0.1.png",
         "data": {
           "isAgentSupport": true
         }
@@ -333,11 +354,32 @@
       "codedata": {
         "node": "NEW_CONNECTION",
         "org": "ballerinax",
-        "module": "hubspot.marketing.transactional",
-        "packageName": "hubspot.marketing.transactional",
+        "module": "hubspot.crm.lists",
+        "packageName": "hubspot.crm.lists",
         "object": "Client",
         "symbol": "init",
         "version": "1.0.1",
+        "isGenerated": false
+      },
+      "enabled": true
+    },
+    {
+      "metadata": {
+        "label": "Actions",
+        "description": "",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_hubspot.automation.actions_1.0.0.png",
+        "data": {
+          "isAgentSupport": true
+        }
+      },
+      "codedata": {
+        "node": "NEW_CONNECTION",
+        "org": "ballerinax",
+        "module": "hubspot.automation.actions",
+        "packageName": "hubspot.automation.actions",
+        "object": "Client",
+        "symbol": "init",
+        "version": "1.0.0",
         "isGenerated": false
       },
       "enabled": true
@@ -377,48 +419,6 @@
         "org": "ballerinax",
         "module": "hubspot.marketing.events",
         "packageName": "hubspot.marketing.events",
-        "object": "Client",
-        "symbol": "init",
-        "version": "1.0.1",
-        "isGenerated": false
-      },
-      "enabled": true
-    },
-    {
-      "metadata": {
-        "label": "Import",
-        "description": "",
-        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_hubspot.crm.import_4.0.1.png",
-        "data": {
-          "isAgentSupport": true
-        }
-      },
-      "codedata": {
-        "node": "NEW_CONNECTION",
-        "org": "ballerinax",
-        "module": "hubspot.crm.import",
-        "packageName": "hubspot.crm.import",
-        "object": "Client",
-        "symbol": "init",
-        "version": "4.0.1",
-        "isGenerated": false
-      },
-      "enabled": true
-    },
-    {
-      "metadata": {
-        "label": "Emails",
-        "description": "",
-        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_hubspot.marketing.emails_1.0.1.png",
-        "data": {
-          "isAgentSupport": true
-        }
-      },
-      "codedata": {
-        "node": "NEW_CONNECTION",
-        "org": "ballerinax",
-        "module": "hubspot.marketing.emails",
-        "packageName": "hubspot.marketing.emails",
         "object": "Client",
         "symbol": "init",
         "version": "1.0.1",

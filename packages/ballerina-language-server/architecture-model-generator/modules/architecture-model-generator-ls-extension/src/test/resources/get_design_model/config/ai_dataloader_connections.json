@@ -1,0 +1,34 @@
+{
+  "description": "Design diagram generation for AI DataLoader connection",
+  "projectPath": "project_10",
+  "output": {
+    "designModel": {
+      "connections": [
+        {
+          "symbol": "aiTextdataloader",
+          "location": {
+            "filePath": "/Users/danniles/Documents/Projects/WSO2/ballerina-language-server.worktrees/fix-1695-dataloader-sidebar/architecture-model-generator/modules/architecture-model-generator-ls-extension/src/test/resources/get_design_model/source/project_10/dataloader.bal",
+            "startLine": {
+              "line": 2,
+              "offset": 0
+            },
+            "endLine": {
+              "line": 2,
+              "offset": 67
+            }
+          },
+          "scope": "GLOBAL",
+          "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_ai_1.11.2.png",
+          "dependentFunctions": [],
+          "dependentConnection": [],
+          "kind": "Connection",
+          "uuid": "ff3192b0-c683-0521-aaa5-9a29574915c3",
+          "enableFlowModel": false,
+          "sortText": "dataloader.bal2"
+        }
+      ],
+      "listeners": [],
+      "services": []
+    }
+  }
+}

@@ -50,8 +50,8 @@ allprojects {
         maven {
             url = 'https://maven.pkg.github.com/ballerina-platform/*'
             credentials {
-                username System.getenv("packageUser") ?: project.findProperty("packageUser")
-                password System.getenv("packagePAT") ?: project.findProperty("packagePAT")
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
             }
         }
     }
@@ -347,12 +347,10 @@ task pullBallerinaModules {
     dependsOn pullBallerinaModule('cdc', ballerinaxCdcVersion)
     dependsOn pullBallerinaModule('mssql', ballerinaxMSSQLVersion)
     dependsOn pullBallerinaModule('mssql.cdc.driver', ballerinaxMSSQLCDCDriverVersion)
-    dependsOn pullBallerinaModule('mysql', ballerinaxMysqlVersion)
-    dependsOn pullBallerinaModule('mysql.cdc.driver', ballerinaxMysqlCdcDriverVersion)
     dependsOn pullBallerinaModule('trigger.github', ballerinaxGithubTriggerVersion)
     dependsOn pullBallerinaModule('trigger.shopify', ballerinaxShopifyTriggerVersion)
+    dependsOn pullBallerinaModule('trigger.hubspot', ballerinaxHubspotTriggerVersion)
     dependsOn pullBallerinaModule('np', ballerinaxNp)
-    dependsOn pullBallerinaModule('workflow', ballerinaWorkflowVersion, "ballerina")
 }
 
 test {
@@ -400,8 +398,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/ballerina-platform/ballerina-language-server")
             credentials {
-                username = System.getenv("packageUser") ?: project.findProperty("packageUser")
-                password = System.getenv("packagePAT") ?: project.findProperty("packagePAT")
+                username = System.getenv("packageUser")
+                password = System.getenv("packagePAT")
             }
         }
     }

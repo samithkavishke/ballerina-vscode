@@ -129,7 +129,7 @@
               "metadata": {
                 "label": "encode",
                 "description": "Encodes HL7 message model to encoded wire format.\n",
-                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.hl7v2_3.0.9.png"
+                "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_health.hl7v2_3.0.10.png"
               },
               "codedata": {
                 "node": "FUNCTION_CALL",
@@ -137,7 +137,7 @@
                 "module": "health.hl7v2",
                 "packageName": "health.hl7v2",
                 "symbol": "encode",
-                "version": "3.0.9"
+                "version": "3.0.10"
               },
               "enabled": true
             }

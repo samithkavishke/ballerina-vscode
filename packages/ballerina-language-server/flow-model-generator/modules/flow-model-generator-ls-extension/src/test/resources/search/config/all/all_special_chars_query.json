@@ -89,7 +89,7 @@
           "metadata": {
             "label": "Asb Administrator",
             "description": "Ballerina Service Bus connector provides the capability to access Azure Service Bus SDK.\nService Bus API provides data access to highly reliable queues and publish/subscribe topics of Azure Service Bus with deep feature capabilities.",
-            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_asb_3.9.1.png"
+            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_asb_3.10.0.png"
           },
           "codedata": {
             "node": "NEW_CONNECTION",
@@ -98,7 +98,7 @@
             "packageName": "asb",
             "object": "Administrator",
             "symbol": "init",
-            "version": "3.9.1",
+            "version": "3.10.0",
             "isGenerated": false
           },
           "enabled": true
@@ -123,18 +123,18 @@
         },
         {
           "metadata": {
-            "label": "Blobs Blob",
-            "description": "Azure Storage Blob connector allows you to access the Azure Blob service REST API.\nThe Blob service offers the following three resources: the storage account, containers, and blobs.\nThis connector lets you execute operations against the storage account, containers, and blobs.\n",
-            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_azure_storage_service_4.3.4.png"
+            "label": "Chat AppHomeCaller",
+            "description": "Caller for app home events (`onAppHome`).\n\nThe `respond` method sets the card to display in the app home tab. The caller\nautomatically wraps the `Card` in the required `RenderActions` / `pushCard`\nstructure.\n\n**Example:**\n```ballerina\nremote function onAppHome(chat:ChatEvent event, chat:AppHomeCaller caller) returns error? {\n    check caller->respond({\n        sections: [{\n            widgets: [{ textParagraph: { text: \"Welcome to the app home!\" } }]\n        }]\n    });\n}\n```",
+            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_googleapis.chat_0.1.0.png"
           },
           "codedata": {
             "node": "NEW_CONNECTION",
             "org": "ballerinax",
-            "module": "azure_storage_service.blobs",
-            "packageName": "azure_storage_service",
-            "object": "BlobClient",
+            "module": "googleapis.chat",
+            "packageName": "googleapis.chat",
+            "object": "AppHomeCaller",
             "symbol": "init",
-            "version": "4.3.4",
+            "version": "0.1.0",
             "isGenerated": false
           },
           "enabled": true

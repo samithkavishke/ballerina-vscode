@@ -165,9 +165,7 @@ public class FunctionData {
         REMOTE,
         RESOURCE,
         LISTENER_INIT,
-        CLASS_INIT,
-        ACTIVITY,
-        WAIT_DATA;
+        CLASS_INIT;
 
         private static final Set<Kind> AI_CLASS_KINDS = EnumSet.of(
                 FunctionData.Kind.MODEL_PROVIDER,

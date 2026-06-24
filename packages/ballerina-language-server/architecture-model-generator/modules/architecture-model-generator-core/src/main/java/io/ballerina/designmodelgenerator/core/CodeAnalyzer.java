@@ -89,9 +89,6 @@ import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.designmodelgenerator.core.model.Connection;
 import io.ballerina.designmodelgenerator.core.model.Listener;
 import io.ballerina.designmodelgenerator.core.model.Location;
-import io.ballerina.designmodelgenerator.core.model.Workflow;
-import io.ballerina.flowmodelgenerator.core.Constants;
-import io.ballerina.flowmodelgenerator.core.utils.WorkflowUtil;
 import io.ballerina.tools.text.LineRange;
 
 import java.nio.file.Path;
@@ -152,8 +149,17 @@ public class CodeAnalyzer extends NodeVisitor {
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
         Optional<Symbol> serviceSymbol = this.semanticModel.symbol(serviceDeclarationNode);
         String displayName = null;
+        String serviceType = null;
         if (serviceSymbol.isPresent()) {
-            displayName = getDisplayName(((ServiceDeclarationSymbol) serviceSymbol.get()).annotAttachments());
+            ServiceDeclarationSymbol serviceDeclarationSymbol = (ServiceDeclarationSymbol) serviceSymbol.get();
+            displayName = getDisplayName(serviceDeclarationSymbol.annotAttachments());
+            Optional<TypeSymbol> typeDescriptor = serviceDeclarationSymbol.typeDescriptor();
+            if (serviceDeclarationNode.typeDescriptor().isPresent()
+                    && typeDescriptor.isPresent() && typeDescriptor.get().getModule().isPresent()) {
+                TypeSymbol typeSymbol = typeDescriptor.get();
+                serviceType = CommonUtils.getTypeSignature(typeSymbol,
+                        CommonUtils.ModuleInfo.from(typeSymbol.getModule().get().id()));
+            }
         }
         String absoluteResourcePath = String.join("", serviceDeclarationNode.absoluteResourcePath()
                 .stream().map(Node::toSourceCode).toList());
@@ -161,6 +167,7 @@ public class CodeAnalyzer extends NodeVisitor {
         String sortText = lineRange.fileName() + lineRange.startLine().line();
         IntermediateModel.ServiceModel serviceModel = new IntermediateModel.ServiceModel(
                 displayName, absoluteResourcePath, sortText, getLocation(lineRange));
+        serviceModel.serviceType = serviceType;
         this.currentServiceModel = serviceModel;
         intermediateModel.serviceModelMap.put(String.valueOf(lineRange.hashCode()), serviceModel);
 
@@ -268,51 +275,12 @@ public class CodeAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
-        if (functionCallExpressionNode.functionName() instanceof QualifiedNameReferenceNode qualifiedName) {
-            handleWorkflowRunCall(qualifiedName, functionCallExpressionNode);
+        if (!(functionCallExpressionNode.functionName() instanceof QualifiedNameReferenceNode)) {
+            if (this.currentFunctionModel != null) {
+                this.currentFunctionModel.dependentFuncs.add(functionCallExpressionNode.functionName()
+                        .toSourceCode().trim());
+            }
             functionCallExpressionNode.arguments().forEach(arg -> arg.accept(this));
-            return;
-        }
-        if (this.currentFunctionModel != null) {
-            this.currentFunctionModel.dependentFuncs.add(functionCallExpressionNode.functionName()
-                    .toSourceCode().trim());
-        }
-        functionCallExpressionNode.arguments().forEach(arg -> arg.accept(this));
-    }
-
-    private void handleWorkflowRunCall(QualifiedNameReferenceNode qualifiedName,
-                                       FunctionCallExpressionNode functionCallExpressionNode) {
-        if (this.currentFunctionModel == null) {
-            return;
-        }
-        if (!Constants.Workflow.RUN_METHOD_NAME.equals(qualifiedName.identifier().text())) {
-            return;
-        }
-        Optional<Symbol> calleeSymbol = semanticModel.symbol(qualifiedName);
-        if (calleeSymbol.isEmpty() || !WorkflowUtil.isWorkflowModule(calleeSymbol.get().getModule())) {
-            return;
-        }
-        SeparatedNodeList<FunctionArgumentNode> arguments = functionCallExpressionNode.arguments();
-        if (arguments.isEmpty()) {
-            return;
-        }
-        FunctionArgumentNode firstArg = arguments.get(0);
-        ExpressionNode workflowArg;
-        if (firstArg instanceof PositionalArgumentNode positionalArgumentNode) {
-            workflowArg = positionalArgumentNode.expression();
-        } else if (firstArg instanceof NamedArgumentNode namedArgumentNode) {
-            workflowArg = namedArgumentNode.expression();
-        } else {
-            return;
-        }
-        Optional<Symbol> workflowFnSymbol = semanticModel.symbol(workflowArg);
-        if (workflowFnSymbol.isEmpty() || workflowFnSymbol.get().getName().isEmpty()) {
-            return;
-        }
-        String workflowName = workflowFnSymbol.get().getName().get();
-        Workflow workflow = intermediateModel.workflowMap.get(workflowName);
-        if (workflow != null) {
-            this.currentFunctionModel.workflows.add(workflow.getUuid());
         }
     }
 

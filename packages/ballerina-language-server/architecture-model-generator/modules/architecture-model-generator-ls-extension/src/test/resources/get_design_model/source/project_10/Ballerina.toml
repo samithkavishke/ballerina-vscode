@@ -1,4 +1,14 @@
 [package]
 org = "wso2"
-name = "workflow_project"
+name = "ai_dataloader_connections"
 version = "0.1.0"
+distribution = "2201.13.4"
+
+[build-options]
+observabilityIncluded = true
+sticky = true
+
+[[dependency]]
+org = "ballerina"
+name = "ai"
+version = "1.11.2"

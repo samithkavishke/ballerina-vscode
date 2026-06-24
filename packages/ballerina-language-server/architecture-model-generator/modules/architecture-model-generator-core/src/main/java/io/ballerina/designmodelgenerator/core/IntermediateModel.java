@@ -21,7 +21,6 @@ package io.ballerina.designmodelgenerator.core;
 import io.ballerina.designmodelgenerator.core.model.Connection;
 import io.ballerina.designmodelgenerator.core.model.Listener;
 import io.ballerina.designmodelgenerator.core.model.Location;
-import io.ballerina.designmodelgenerator.core.model.Workflow;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,8 +42,6 @@ public class IntermediateModel {
     protected final Map<String, Connection> connectionMap;
     protected final Map<String, Connection> uuidToConnectionMap;
     protected final Map<String, ServiceClassModel> serviceClassModelMap;
-    protected final Map<String, Workflow> workflowMap;
-    protected final Map<String, Workflow> uuidToWorkflowMap;
 
     public IntermediateModel() {
         this.functionModelMap = new HashMap<>();
@@ -53,8 +50,6 @@ public class IntermediateModel {
         this.connectionMap = new HashMap<>();
         this.uuidToConnectionMap = new HashMap<>();
         this.serviceClassModelMap = new HashMap<>();
-        this.workflowMap = new HashMap<>();
-        this.uuidToWorkflowMap = new HashMap<>();
     }
 
     public static class ServiceModel {
@@ -65,6 +60,7 @@ public class IntermediateModel {
         protected String absolutePath;
         protected String displayName;
         protected String sortText;
+        protected String serviceType;
         protected final List<String> namedListeners = new ArrayList<>();
         protected final List<Listener> anonListeners = new ArrayList<>();
 
@@ -86,12 +82,10 @@ public class IntermediateModel {
         protected boolean analyzed;
         protected boolean visited;
         protected final Set<String> allDependentConnections;
-        protected final Set<String> allDependentWorkflows;
         protected Location location;
         protected String path;
         protected String displayName;
         protected final Set<String> connections = new HashSet<>();
-        protected final Set<String> workflows = new HashSet<>();
         protected final Set<String> usedClasses = new HashSet<>();
 
         public FunctionModel(String name) {
@@ -100,7 +94,6 @@ public class IntermediateModel {
             this.analyzed = false;
             this.visited = false;
             this.allDependentConnections = new HashSet<>();
-            this.allDependentWorkflows = new HashSet<>();
         }
     }
 

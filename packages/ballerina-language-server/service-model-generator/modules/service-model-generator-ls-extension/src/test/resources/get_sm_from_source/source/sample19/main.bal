@@ -1,15 +1,9 @@
-import ballerinax/cdc;
-import ballerinax/mysql;
-import ballerinax/mysql.cdc.driver as _;
+import ballerinax/trigger.hubspot;
 
-listener mysql:CdcListener mysqlCdcListener = new (database = {hostname: "localhost", port: 3306, username: "root", password: "root", includedDatabases: ["mydb1"]});
+listener hubspot:Listener hubspotListener = new (listenerConfig = {clientSecret: "secret", callbackURL: "http://localhost:8090/callback"});
 
-@cdc:ServiceConfig {
-    tables: "mydb1.t1"
-}
-
-service cdc:Service on mysqlCdcListener {
-    remote function onRead(AfterEntrySchema afterEntry, string tableName) returns error? {
+service hubspot:CompanyService on hubspotListener {
+    remote function onCompanyCreation(hubspot:WebhookEvent event) returns error? {
         do {
         } on fail error err {
             // handle error
@@ -17,7 +11,15 @@ service cdc:Service on mysqlCdcListener {
         }
     }
 
-    remote function onUpdate(record {} beforeEntry, record {} afterEntry, string tableName) returns error? {
+    remote function onCompanyDeletion(hubspot:WebhookEvent event) returns error? {
+        do {
+        } on fail error err {
+            // handle error
+            return error("unhandled error", err);
+        }
+    }
+
+    remote function onCompanyPropertychange(hubspot:WebhookEvent event) returns error? {
         do {
         } on fail error err {
             // handle error

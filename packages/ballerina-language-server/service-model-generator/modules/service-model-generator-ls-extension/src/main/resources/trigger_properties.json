@@ -129,6 +129,16 @@
     "triggerName": "Shopify"
   },
   "13": {
+    "name": "trigger.hubspot",
+    "orgName": "ballerinax",
+    "packageName": "trigger.hubspot",
+    "keywords": [
+      "hubspot",
+      "event"
+    ],
+    "triggerName": "HubSpot"
+  },
+  "14": {
     "name": "mssql",
     "orgName": "ballerinax",
     "packageName": "mssql",
@@ -138,23 +148,13 @@
       "event"
     ]
   },
-  "14": {
+  "15": {
     "name": "postgresql",
     "orgName": "ballerinax",
     "packageName": "postgresql",
     "keywords": [
       "postgresql",
       "postgres",
-      "cdc",
-      "event"
-    ]
-  },
-  "15": {
-    "name": "mysql",
-    "orgName": "ballerinax",
-    "packageName": "mysql",
-    "keywords": [
-      "mysql",
       "cdc",
       "event"
     ]

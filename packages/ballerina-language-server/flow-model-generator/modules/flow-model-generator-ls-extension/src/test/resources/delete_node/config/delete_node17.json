@@ -1,5 +1,5 @@
 {
-  "description": "Delete simple wait data.a from workflow function with multi-field data record",
+  "description": "Delete node in a multi-file module should not process UNUSED_MODULE_PREFIX diagnostics from other files (diagnostic at line beyond main file imports causes IllegalStateException without fix)",
   "functionStart": {
     "line": 2,
     "offset": 0
@@ -9,40 +9,38 @@
     "offset": 1
   },
   "nodeStart": {
-    "line": 4,
+    "line": 3,
     "offset": 4
   },
   "nodeEnd": {
-    "line": 4,
-    "offset": 34
+    "line": 5,
+    "offset": 5
   },
-  "source": "delete_node_wait_data/functions.bal",
+  "source": "delete_node_project_1/main.bal",
   "output": {
-    "delete_node_wait_data/types.bal": [
+    "delete_node_project_1/main.bal": [
       {
         "range": {
           "start": {
-            "line": 5,
-            "character": 4
+            "line": 0,
+            "character": 0
           },
           "end": {
-            "line": 5,
-            "character": 22
+            "line": 0,
+            "character": 21
           }
         },
         "newText": ""
-      }
-    ],
-    "delete_node_wait_data/functions.bal": [
+      },
       {
         "range": {
           "start": {
-            "line": 4,
+            "line": 3,
             "character": 4
           },
           "end": {
-            "line": 4,
-            "character": 34
+            "line": 5,
+            "character": 5
           }
         },
         "newText": ""

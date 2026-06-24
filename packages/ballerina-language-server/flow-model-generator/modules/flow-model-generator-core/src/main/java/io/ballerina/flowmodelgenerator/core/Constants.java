@@ -95,48 +95,6 @@ public class Constants {
 
     }
 
-    // Constants used for Workflow
-    public static final class Workflow {
-
-        private Workflow() {
-        }
-
-        public static final String WORKFLOW_ORG = "ballerina";
-        public static final String WORKFLOW_MODULE = "workflow";
-        public static final String ACTIVITY_MODULE = "workflow.activity";
-        public static final String CONTEXT_CLASS_NAME = "Context";
-        public static final String RUN_METHOD_NAME = "run";
-        public static final String RUN_LABEL = "Run Workflow";
-        public static final String RUN_DESCRIPTION = "Run a new workflow instance";
-        public static final String SEND_DATA_METHOD_NAME = "sendData";
-        public static final String SEND_DATA_LABEL = "Send Data";
-        public static final String SEND_DATA_DESCRIPTION = "Send data to an existing workflow instance";
-        public static final String CALL_ACTIVITY_METHOD_NAME = "callActivity";
-        public static final String AWAIT_METHOD_NAME = "await";
-        public static final String CALL_ACTIVITY_LABEL = "Call Activity";
-        public static final String CALL_ACTIVITY_DESCRIPTION = "Call a workflow activity function";
-        public static final String WAIT_DATA_LABEL = "Wait for Data";
-        public static final String WAIT_DATA_DESCRIPTION = "Wait for workflow data to be received";
-        public static final String WORKFLOW = "Workflow";
-        public static final String ACTIVITY = "Activity";
-        public static final String DEFAULT_CTX_PARAM_NAME = "ctx";
-        public static final String DEFAULT_DATA_PARAM_NAME = "data";
-        public static final String DEFAULT_INPUT_PARAM_NAME = "input";
-        public static final String DATA_SUFFIX = "Data";
-        public static final String ANYDATA = "anydata";
-
-        // Builtin activity constants
-        public static final String BUILTIN_REST_LABEL = "Call REST API";
-        public static final String BUILTIN_REST_DESCRIPTION = "Call a REST API endpoint";
-        public static final String BUILTIN_REST_FUNCTION = "callRestAPI";
-        public static final String BUILTIN_SOAP_LABEL = "Call SOAP API";
-        public static final String BUILTIN_SOAP_DESCRIPTION = "Call a SOAP web service";
-        public static final String BUILTIN_SOAP_FUNCTION = "callSoapAPI";
-        public static final String BUILTIN_EMAIL_LABEL = "Send Email (SMTP)";
-        public static final String BUILTIN_EMAIL_DESCRIPTION = "Send an email via SMTP";
-        public static final String BUILTIN_EMAIL_FUNCTION = "sendEmail";
-    }
-
     // Constants used for AI
     public static final class Ai {
 

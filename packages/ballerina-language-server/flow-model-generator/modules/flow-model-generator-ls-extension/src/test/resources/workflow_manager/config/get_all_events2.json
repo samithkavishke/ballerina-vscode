@@ -1,8 +1,0 @@
-{
-  "source": "workflow_project/main.bal",
-  "description": "Get all data for a workflow without a data parameter",
-  "workflowName": "simpleWorkflow",
-  "output": {
-    "data": []
-  }
-}

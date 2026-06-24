@@ -179,24 +179,6 @@
         },
         {
           "metadata": {
-            "label": "Auditlog",
-            "description": "This is a generated connector for [Commercetools API v1](https://docs.commercetools.com/api/) OpenAPI specification. \nThe commercetools Platform HTTP API(Audit Log) offers an interface for programmatic access to tracks creations, deletions, and updates of platform resources.",
-            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_commercetools.auditlog_1.4.1.png"
-          },
-          "codedata": {
-            "node": "NEW_CONNECTION",
-            "org": "ballerinax",
-            "module": "commercetools.auditlog",
-            "packageName": "commercetools.auditlog",
-            "object": "Client",
-            "symbol": "init",
-            "version": "1.4.1",
-            "isGenerated": false
-          },
-          "enabled": true
-        },
-        {
-          "metadata": {
             "label": "Onepassword",
             "description": "This is a generated connector from [1Password Connect API v1.0](https://1password.com/) OpenAPI specification.\n1Password is the easiest way to store and use strong passwords. Log in to sites and fill forms securely with a single click.",
             "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_onepassword_1.5.1.png"
@@ -209,6 +191,24 @@
             "object": "Client",
             "symbol": "init",
             "version": "1.5.1",
+            "isGenerated": false
+          },
+          "enabled": true
+        },
+        {
+          "metadata": {
+            "label": "Auditlog",
+            "description": "This is a generated connector for [Commercetools API v1](https://docs.commercetools.com/api/) OpenAPI specification. \nThe commercetools Platform HTTP API(Audit Log) offers an interface for programmatic access to tracks creations, deletions, and updates of platform resources.",
+            "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_commercetools.auditlog_1.4.1.png"
+          },
+          "codedata": {
+            "node": "NEW_CONNECTION",
+            "org": "ballerinax",
+            "module": "commercetools.auditlog",
+            "packageName": "commercetools.auditlog",
+            "object": "Client",
+            "symbol": "init",
+            "version": "1.4.1",
             "isGenerated": false
           },
           "enabled": true

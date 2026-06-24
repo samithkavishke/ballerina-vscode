@@ -241,9 +241,7 @@ public class AiUtils {
                 originalProperty.advancedValue(),
                 originalProperty.imports(),
                 originalProperty.defaultValue(),
-                originalProperty.comment(),
-                originalProperty.dynamicFormFields(),
-                originalProperty.itemOptions()
+                originalProperty.comment()
         );
     }
 
@@ -274,9 +272,7 @@ public class AiUtils {
                 original.advancedValue(),
                 original.imports(),
                 original.defaultValue(),
-                original.comment(),
-                original.dynamicFormFields(),
-                original.itemOptions()
+                original.comment()
         );
     }
 
@@ -301,8 +297,7 @@ public class AiUtils {
                 original.metadata().keywords(),
                 original.metadata().icon(),
                 original.metadata().functionKind(),
-                original.metadata().data(),
-                original.metadata().connectors()
+                original.metadata().data()
         );
 
         return new Property(
@@ -321,9 +316,7 @@ public class AiUtils {
                 original.advancedValue(),
                 original.imports(),
                 original.defaultValue(),
-                original.comment(),
-                original.dynamicFormFields(),
-                original.itemOptions()
+                original.comment()
         );
     }
 
@@ -356,9 +349,7 @@ public class AiUtils {
                 original.advancedValue(),
                 original.imports(),
                 original.defaultValue(),
-                original.comment(),
-                original.dynamicFormFields(),
-                original.itemOptions()
+                original.comment()
         );
     }
 
@@ -385,15 +376,6 @@ public class AiUtils {
         Object valueToUse = customValue != null ? customValue : property.value();
         boolean hidden = isHidden || property.hidden();
 
-        // When a property from a template is flagged as hidden it is an internal default
-        // that should not be user-visible.  If the node builder has already set this key
-        // from its own authoritative data (e.g. AGENT_CALL sets type/variable from the
-        // function's return type), do not replace those correct values with the template
-        // defaults (e.g. ai:Agent / aiAgent from the AGENT template).
-        if (hidden && nodeBuilder.properties().build().containsKey(key)) {
-            return;
-        }
-
         Property copied = new Property(
                 property.metadata(),
                 property.types(),
@@ -410,9 +392,7 @@ public class AiUtils {
                 property.advancedValue(),
                 property.imports(),
                 property.defaultValue(),
-                property.comment(),
-                property.dynamicFormFields(),
-                property.itemOptions()
+                property.comment()
         );
         nodeBuilder.properties().build().put(key, copied);
     }
@@ -534,7 +514,8 @@ public class AiUtils {
     }
 
     public static String getBallerinaAiModuleVersion(Project project) {
-        return project.currentPackage().dependenciesToml().map(DependenciesToml::tomlDocument).map(TomlDocument::toml)
+        return project.currentPackage().dependenciesToml()
+                .map(DependenciesToml::tomlDocument).map(TomlDocument::toml)
                 .map(toml -> toml.getTables(PACKAGE)).orElse(List.of()).stream()
                 .filter(pkg -> BALLERINA.equals(pkg.get(ORG).map(Object::toString).orElse(""))
                         && AI.equals(pkg.get(NAME).map(Object::toString).orElse("")))
@@ -616,7 +597,7 @@ public class AiUtils {
         Collection<List<Module>> candidateModules = (version == null)
                 ? dependentModules.values()
                 : dependentModules.entrySet().stream()
-                .filter(entry -> compareSemver(version, entry.getKey()) >= 0)
+                .filter(entry -> compareMajorMinor(version, entry.getKey()) >= 0)
                 .map(Map.Entry::getValue)
                 .toList();
 
@@ -651,6 +632,20 @@ public class AiUtils {
         int length = Math.max(parts1.length, parts2.length);
 
         for (int i = 0; i < length; i++) {
+            int num1 = i < parts1.length ? Integer.parseInt(parts1[i]) : 0;
+            int num2 = i < parts2.length ? Integer.parseInt(parts2[i]) : 0;
+            if (num1 != num2) {
+                return Integer.compare(num1, num2);
+            }
+        }
+        return 0;
+    }
+
+    // Compares only major.minor (ignores patch) — patch bumps within the same minor are backward-compatible.
+    static int compareMajorMinor(String version1, String version2) {
+        String[] parts1 = version1.split("\\.");
+        String[] parts2 = version2.split("\\.");
+        for (int i = 0; i < 2; i++) {
             int num1 = i < parts1.length ? Integer.parseInt(parts1[i]) : 0;
             int num2 = i < parts2.length ? Integer.parseInt(parts2[i]) : 0;
             if (num1 != num2) {

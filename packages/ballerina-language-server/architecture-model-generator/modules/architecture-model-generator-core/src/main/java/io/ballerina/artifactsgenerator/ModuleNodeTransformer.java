@@ -44,7 +44,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.flowmodelgenerator.core.utils.WorkflowUtil;
 import io.ballerina.modelgenerator.commons.CommonUtils;
 import org.ballerinalang.langserver.commons.BallerinaCompilerApi;
 
@@ -55,6 +54,7 @@ import static io.ballerina.modelgenerator.commons.CommonUtils.CONNECTOR_TYPE;
 import static io.ballerina.modelgenerator.commons.CommonUtils.PERSIST;
 import static io.ballerina.modelgenerator.commons.CommonUtils.PERSIST_MODEL_FILE;
 import static io.ballerina.modelgenerator.commons.CommonUtils.getPersistModelFilePath;
+import static io.ballerina.modelgenerator.commons.CommonUtils.isAiDataLoader;
 import static io.ballerina.modelgenerator.commons.CommonUtils.isAiMemoryStore;
 import static io.ballerina.modelgenerator.commons.CommonUtils.isAiKnowledgeBase;
 import static io.ballerina.modelgenerator.commons.CommonUtils.isAiVectorStore;
@@ -88,7 +88,6 @@ public class ModuleNodeTransformer extends NodeTransformer<Optional<Artifact>> {
         Artifact.Builder functionBuilder = new Artifact.Builder(functionDefinitionNode);
         String functionName = functionDefinitionNode.functionName().text();
 
-        Optional<Symbol> functionSymbol = semanticModel.symbol(functionDefinitionNode);
         if (functionName.equals(MAIN_FUNCTION_NAME)) {
             functionBuilder
                     .name(AUTOMATION_FUNCTION_NAME)
@@ -115,14 +114,6 @@ public class ModuleNodeTransformer extends NodeTransformer<Optional<Artifact>> {
             functionBuilder
                     .name(functionName)
                     .type(Artifact.Type.REMOTE);
-        } else if (functionSymbol.isPresent() && WorkflowUtil.isWorkflowFunction(functionSymbol.get())) {
-            functionBuilder
-                    .name(functionName)
-                    .type(Artifact.Type.WORKFLOW);
-        } else if (functionSymbol.isPresent() && WorkflowUtil.isActivityFunction(functionSymbol.get())) {
-            functionBuilder
-                    .name(functionName)
-                    .type(Artifact.Type.ACTIVITY);
         } else {
             functionBuilder
                     .name(functionName)
@@ -283,7 +274,7 @@ public class ModuleNodeTransformer extends NodeTransformer<Optional<Artifact>> {
                     (TypeReferenceTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
             ClassSymbol classSymbol = (ClassSymbol) typeDescriptorSymbol.typeDescriptor();
             if (classSymbol.qualifiers().contains(Qualifier.CLIENT) || isAiKnowledgeBase(classSymbol)
-                    || isAiVectorStore(symbol) || isAiMemoryStore(symbol)) {
+                    || isAiVectorStore(symbol) || isAiMemoryStore(symbol) || isAiDataLoader(symbol)) {
                 return Optional.of(classSymbol);
             }
         } catch (Throwable e) {

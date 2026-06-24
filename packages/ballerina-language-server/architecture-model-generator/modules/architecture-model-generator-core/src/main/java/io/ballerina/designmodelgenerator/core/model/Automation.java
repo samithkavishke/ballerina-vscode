@@ -32,17 +32,14 @@ public final class Automation extends DesignGraphNode {
     private final String displayName;
     private final Location location;
     private final List<String> connections;
-    private final List<String> workflows;
     private final String type;
 
-    public Automation(String name, String displayName, String sortText, Location location, List<String> connections,
-                      List<String> workflows) {
+    public Automation(String name, String displayName, String sortText, Location location, List<String> connections) {
         super(true, sortText);
         this.name = name;
         this.displayName = displayName;
         this.location = location;
         this.connections = connections;
-        this.workflows = workflows;
         this.type = "automation";
     }
 
@@ -66,14 +63,10 @@ public final class Automation extends DesignGraphNode {
         return connections;
     }
 
-    public List<String> getWorkflows() {
-        return workflows;
-    }
-
     @Override
     public int hashCode() {
        return Objects.hash(type.hashCode(), name.hashCode(), displayName.hashCode(), location.hashCode(),
-               connections.size(), workflows == null ? 0 : workflows.size());
+               connections.size());
     }
 
     @Override
@@ -81,11 +74,8 @@ public final class Automation extends DesignGraphNode {
         if (!(obj instanceof Automation automation)) {
             return false;
         }
-        int thisWorkflows = this.workflows == null ? 0 : this.workflows.size();
-        int otherWorkflows = automation.workflows == null ? 0 : automation.workflows.size();
         return automation.getType().equals(type) && automation.getName().equals(name) &&
                 automation.getDisplayName().equals(displayName) && automation.getLocation().equals(location) &&
-                automation.getConnections().size() == connections.size() &&
-                otherWorkflows == thisWorkflows;
+                automation.getConnections().size() == connections.size();
     }
 }
