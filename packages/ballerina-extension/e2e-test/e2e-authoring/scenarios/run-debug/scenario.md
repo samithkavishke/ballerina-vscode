@@ -8,7 +8,7 @@ verifies the "Run Integration" flow works from every entry point a user would
 actually use — without rebuilding the automation through the UI (that
 artifact-creation flow is already covered by `automation.spec.ts`).
 
-This is a **retroactive** scenario doc: `automation-run.spec.ts` already
+This is a **retroactive** scenario doc: `run-debug.spec.ts` already
 exists and passes, written directly as a promoted spec without an authoring
 pass. The one behavioral fix in scope here (per your instruction) is: **the
 "missing config" test currently creates its missing-configurable scenario by
@@ -19,14 +19,14 @@ same `ConfigEditor` page object `configuration.spec.ts` already uses.
 
 ## Fixture
 
-`e2e-playwright-tests/data/automation_run_project` (already exists, unchanged):
+`e2e-playwright-tests/data/run_debug_project` (already exists, unchanged):
 
 ```ballerina
 // automation.bal
 import ballerina/io;
 
 public function main() {
-    io:println("automation-run started");
+    io:println("run-debug started");
 }
 ```
 

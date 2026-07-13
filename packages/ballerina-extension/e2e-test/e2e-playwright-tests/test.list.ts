@@ -41,7 +41,7 @@ async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, timeoutM
 
 import automation from './automation/automation.spec';
 import automationFlowNodes from './automation/flow-nodes.spec';
-import automationRun from './automation-run/automation-run.spec';
+import runDebug from './run-debug/run-debug.spec';
 import runConflict from './run-conflict/run-conflict.spec';
 import runConcurrent from './run-concurrent/run-concurrent.spec';
 import automationDebug from './automation-debug/automation-debug.spec';
@@ -115,8 +115,8 @@ test.describe('Ballerina E2E Group 1', { tag: '@group1' }, async () => {
     test.describe(automation);
     test.describe(automationFlowNodes);
 
-    // <----Automation Run Test---->
-    test.describe(automationRun);
+    // <----Run/Debug Test---->
+    test.describe(runDebug);
 
     // <----Run Conflict (Same-Integration Restart) Test---->
     test.describe(runConflict);

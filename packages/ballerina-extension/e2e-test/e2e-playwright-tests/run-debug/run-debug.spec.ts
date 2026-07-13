@@ -29,7 +29,7 @@ const RUNNING_EXECUTABLE_TEXT = 'Running executable';
 // prints a marker and exits). We start from this fixture instead of building an
 // Automation through the UI — that artifact-creation flow is already covered by
 // automation.spec.ts, so rebuilding it here was pure duplicated setup.
-const PROJECT_TEMPLATE = path.join(__dirname, '..', 'data', 'automation_run_project');
+const PROJECT_TEMPLATE = path.join(__dirname, '..', 'data', 'run_debug_project');
 
 async function clickRunButton() {
     const runButton = page.page.locator(RUN_BUTTON_SELECTOR).first();
@@ -61,7 +61,7 @@ export default function createTests() {
         initTest(true, true, undefined, undefined, PROJECT_TEMPLATE);
 
         test.afterAll(async () => {
-            logStep('automation-run: cleaning up any leftover runs');
+            logStep('run-debug: cleaning up any leftover runs');
             // Dismiss any dialog/quickpick a failed test may have left open, then
             // stop any surviving run so it does not leak into subsequent suites
             // on the soft-reload path.
@@ -126,11 +126,11 @@ export default function createTests() {
             // in Config.toml file" with an "Update Configurables" action — it
             // does NOT auto-create Config.toml and continue running (that was
             // stale behavior from an older UI version).
-            const missingConfigText = page.page.getByText('Missing required configurations in Config.toml file', { exact: true });
+            const missingConfigText = page.page.getByText('Missing Config.toml file');
             await missingConfigText.waitFor({ timeout: 15000 });
 
             logStep('Opening the Configurable Variables view to fill the missing value');
-            await page.page.getByRole('button', { name: 'Update Configurables' }).click();
+            await page.page.getByRole('button', { name: 'Create Config.toml' }).click();
 
             // Fill the required "url" configurable through the Configurable
             // Variables webview, same helper used by configuration.spec.ts.
@@ -138,6 +138,7 @@ export default function createTests() {
             await configEditor.init();
             await configEditor.addConfigTomlValue('url', 'https://example.com');
 
+            await page.page.waitForTimeout(2000);
             logStep('Re-running now that the required config is set');
             await clickRunButton();
 
