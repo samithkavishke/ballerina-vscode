@@ -16,207 +16,151 @@
  * under the License.
  */
 import { test } from '@playwright/test';
-import { addArtifact, BI_INTEGRATOR_LABEL, BI_WEBVIEW_NOT_FOUND_ERROR, initTest, page } from '../utils/helpers';
-import { Form, switchToIFrame } from '@wso2/playwright-vscode-tester';
-import { ProjectExplorer, Diagram, SidePanel } from '../utils/pages';
+import * as path from 'path';
+import { initTest, logStep, page } from '../utils/helpers';
+import { ProjectExplorer, ConfigEditor } from '../utils/pages';
 import { DEFAULT_PROJECT_NAME } from '../utils/helpers/constants';
 import { FileUtils } from '../utils/helpers/fileSystem';
 
+const RUN_BUTTON_SELECTOR = 'ul.actions-container[role="toolbar"] li.action-item a[role="button"][aria-label="Run Integration"]';
+const RUNNING_EXECUTABLE_TEXT = 'Running executable';
+
+// Single-package template with a pre-baked runnable automation (`main` that
+// prints a marker and exits). We start from this fixture instead of building an
+// Automation through the UI — that artifact-creation flow is already covered by
+// automation.spec.ts, so rebuilding it here was pure duplicated setup.
+const PROJECT_TEMPLATE = path.join(__dirname, '..', 'data', 'automation_run_project');
+
+async function clickRunButton() {
+    const runButton = page.page.locator(RUN_BUTTON_SELECTOR).first();
+    await runButton.waitFor({ timeout: 10000 });
+    await runButton.click();
+}
+
+function runningMarker() {
+    return page.page.locator('.xterm-screen', { hasText: RUNNING_EXECUTABLE_TEXT }).first();
+}
+
+// Clicks the debug toolbar Stop button until no session remains (bounded).
+// Runs are stopped between tests so a live process never leaks into the next
+// test (which would trigger the run-conflict prompt and make this suite flaky).
+async function stopAllRunningIntegrations() {
+    for (let i = 0; i < 4; i++) {
+        const stopButton = page.page.locator('.debug-toolbar a[aria-label^="Stop"]').first();
+        if (!await stopButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+            return;
+        }
+        await stopButton.click().catch(() => undefined);
+        await page.page.waitForTimeout(1500);
+    }
+}
+
 export default function createTests() {
-    // Run Integration Tests
     test.describe.serial('Run Integration Tests', {
     }, async () => {
-        initTest();
-        test('Create automation to run', async () => {
-            // 1. Click on the "Add Artifact" button
-            // 2. Verify the Artifacts menu is displayed
-            // 3. Under "Automation" section, click on "Automation" option
-            await addArtifact('Automation', 'automation');
+        initTest(true, true, undefined, undefined, PROJECT_TEMPLATE);
 
-            const artifactWebView = await switchToIFrame(BI_INTEGRATOR_LABEL, page.page, 30000);
-            if (!artifactWebView) {
-                throw new Error(BI_WEBVIEW_NOT_FOUND_ERROR);
-            }
-
-            // 4. Verify the "Create New Automation" form is displayed
-            const createForm = artifactWebView.getByRole('heading', { name: /Create New Automation/i });
-            await createForm.waitFor({ timeout: 10000 });
-
-            // 6. (Optional) Click on "Advanced Configurations" to expand the section
-            const advancedConfigExpand = artifactWebView.getByText('Expand').first();
-            if (await advancedConfigExpand.isVisible({ timeout: 2000 }).catch(() => false)) {
-                await advancedConfigExpand.click();
-                await page.page.waitForTimeout(500);
-            }
-
-            // 7. (Optional) Verify "Return Error" checkbox is checked by default
-            const returnErrorCheckbox = artifactWebView.getByRole('checkbox', { name: /Return Error/i }).first();
-            if (await returnErrorCheckbox.isVisible()) {
-                const isChecked = await returnErrorCheckbox.isChecked();
-                if (!isChecked) {
-                    throw new Error('Return Error checkbox should be checked by default');
-                }
-            }
-
-            // 8. Click on the "Create" button
-            await artifactWebView.getByRole('button', { name: 'Create' }).click();
-
-            // 9. Verify the Automation is created and the automation designer view is displayed
-            const diagramCanvas = artifactWebView.locator('#bi-diagram-canvas');
-            await diagramCanvas.waitFor({ state: 'visible', timeout: 30000 });
-
-            // 10. Verify the automation name is displayed (default: "main")
-            const diagramTitle = artifactWebView.locator('h2', { hasText: 'Automation' });
-            await diagramTitle.waitFor();
-
-            // 11. Verify the "Flow" and "Sequence" tabs are available
-            // Wait for the diagram to fully load before checking for tabs
-            await page.page.waitForTimeout(1000);
-            // The tabs are clickable generic elements, not role="tab"
-            const flowTab = artifactWebView.getByText('Flow').first();
-            await flowTab.waitFor({ timeout: 10000, state: 'visible' });
-            const sequenceTab = artifactWebView.getByText('Sequence').first();
-            await sequenceTab.waitFor({ timeout: 10000, state: 'visible' });
-
-            // 12. Verify the flow diagram shows a "Start" node
-            // Check if "Start" node is present using data-testid
-            const startNode = artifactWebView.locator('[data-testid="start-node"]');
-            await startNode.waitFor({ timeout: 10000, state: 'visible' });
-
-            // 13. Verify the flow diagram shows an "Error Handler" node
-            // Check if "Error Handler" node is present without using CSS class selectors
-            await artifactWebView.getByText(/^Error Handler$/, { exact: true }).first();
-
-            // 14. Verify the tree view shows the automation name under "Entry Points" section
-            const projectExplorer = new ProjectExplorer(page.page);
-            await projectExplorer.findItem([DEFAULT_PROJECT_NAME, 'Entry Points', 'main']);
+        test.afterAll(async () => {
+            logStep('automation-run: cleaning up any leftover runs');
+            // Dismiss any dialog/quickpick a failed test may have left open, then
+            // stop any surviving run so it does not leak into subsequent suites
+            // on the soft-reload path.
+            await page.page.keyboard.press('Escape').catch(() => undefined);
+            await stopAllRunningIntegrations();
         });
 
-        test('Click Run button from toolbar', async () => {
-            // 1. Navigate to the BI integration view
+        test('Run from toolbar', async () => {
+            // Confirm the fixture's automation is present as a runnable entry point.
             const projectExplorer = new ProjectExplorer(page.page);
             const mainEntryPoint = await projectExplorer.findItem([DEFAULT_PROJECT_NAME, 'Entry Points', 'main']);
 
-            // Open main.bal in the text editor so that VS Code's ${file} launch
-            // variable can be resolved when the debug/run session starts. Without
-            // an active text editor, `debug.startDebugging` fails with
+            // Open automation.bal in the text editor so VS Code's ${file} launch
+            // variable resolves when the run session starts. Without an active
+            // text editor, `debug.startDebugging` fails with
             // "Variable ${file} can not be resolved. Please open an editor."
             await FileUtils.openProjectFileInEditor('automation.bal');
             await mainEntryPoint.click();
 
-            // 2. Verify the "Run Integration" button is visible in the editor toolbar
-            // Find the "Run Integration" button by aria-label in the editor toolbar actions
-            const runButton = page.page.locator('ul.actions-container[role="toolbar"] li.action-item a[role="button"][aria-label="Run Integration"]').first();
-            await runButton.waitFor({ timeout: 10000 });
+            logStep('Clicking the Run Integration toolbar button');
+            // The "Run Integration" button must be visible in the editor toolbar.
+            await clickRunButton();
 
-            // 3. Click on the "Run Integration" button
-            await runButton.click();
-
-            // Wait until "Running executable" text appears in the terminal panel
-            const runningExecutableLocator = page.page.locator('.xterm-screen', { hasText: 'Running executable' }).first();
-            await runningExecutableLocator.waitFor({ timeout: 30000 });
-        });
-
-        test('Verify terminal opens', async () => {
-            // 2. Verify the VS Code terminal panel is visible
+            // The VS Code terminal panel opens and the run reaches execution.
             const terminal = page.page.locator('.xterm-screen').first();
             await terminal.waitFor({ timeout: 10000 });
+            await runningMarker().waitFor({ timeout: 30000 });
+            logStep('Toolbar run reached execution');
+
+            // Stop the run so it does not leak into the next test.
+            await stopAllRunningIntegrations();
         });
 
-        test('Run with missing config', async () => {
-            // Add config to the project
-            const configContent = 'configurable string url = ?;';
-            FileUtils.updateProjectFile('config.bal', configContent);
-            await page.page.waitForTimeout(1000);
+        test('Run with missing config prompts to update configurables, then runs', async () => {
+            // Introduce a required configurable so the run detects a missing
+            // value. Writing config.bal here IS the scenario trigger (the
+            // project having a required-but-unconfigured value at run time).
+            FileUtils.updateProjectFile('config.bal', 'configurable string url = ?;');
 
-            // 1. Ensure the project has missing required configurations
-            // 2. Click on the "Run Integration" button
-            const runButton = page.page.locator('ul.actions-container[role="toolbar"] li.action-item a[role="button"][aria-label="Run Integration"]').first();
-            await runButton.waitFor({ timeout: 10000 });
-            await runButton.click();
+            // Open the file so VS Code sends an explicit didOpen to the
+            // language server. A raw fs write alone only trips the slower
+            // workspace file-watcher, which can race with the Run click below
+            // and leave the extension's missing-config check unaware of the
+            // new configurable — confirmed via trace: without this, Run
+            // proceeds straight to `bal run` and fails with a plain compiler
+            // error instead of surfacing the missing-config prompt.
+            await FileUtils.openProjectFileInEditor('config.bal');
+            await page.page.waitForTimeout(3000);
 
-            // 3. Verify a missing configuration popup/dialog is displayed
-            // Wait for the native VSCode dialog to appear
-            const dialogBox = page.page.locator('.monaco-dialog-box').first();
-            await dialogBox.waitFor({ timeout: 15000 });
+            // Re-focus the automation entry point: the "Run Integration"
+            // toolbar button is scoped to the currently active entry point,
+            // and opening config.bal above switched focus away from it.
+            const projectExplorer = new ProjectExplorer(page.page);
+            const mainEntryPoint = await projectExplorer.findItem([DEFAULT_PROJECT_NAME, 'Entry Points', 'main']);
+            await FileUtils.openProjectFileInEditor('automation.bal');
+            await mainEntryPoint.click();
 
-            // Verify the dialog title "Missing Config.toml file"
-            const dialogTitle = page.page.getByText('Missing Config.toml file', { exact: true });
-            await dialogTitle.waitFor({ timeout: 5000 });
+            logStep('Running with a required config missing');
+            await clickRunButton();
 
-            // Verify the dialog buttons are present
-            // Check if the "Create Config.toml" button is visible
-            await page.page.getByText('Create Config.toml', { exact: true }).isVisible();
-            // Check if the "Run Anyway" button is visible
-            await page.page.getByText('Run Anyway', { exact: true }).isVisible();
-            // Check if the "Cancel" button is visible and click it
-            const cancelButton = page.page.getByText('Cancel', { exact: true });
-            if (await cancelButton.isVisible()) {
-                await cancelButton.click();
-                console.log('Clicked "Cancel" button.');
-            }
-        });
+            // The current product flow surfaces "Missing required configurations
+            // in Config.toml file" with an "Update Configurables" action — it
+            // does NOT auto-create Config.toml and continue running (that was
+            // stale behavior from an older UI version).
+            const missingConfigText = page.page.getByText('Missing required configurations in Config.toml file', { exact: true });
+            await missingConfigText.waitFor({ timeout: 15000 });
 
-        test('Run after config added', async () => {
+            logStep('Opening the Configurable Variables view to fill the missing value');
+            await page.page.getByRole('button', { name: 'Update Configurables' }).click();
 
-            // 1. Ensure the project has missing required configurations
-            // 2. Click on the "Run Integration" button
-            const runButton = page.page.locator('ul.actions-container[role="toolbar"] li.action-item a[role="button"][aria-label="Run Integration"]').first();
-            await runButton.waitFor({ timeout: 10000 });
-            await runButton.click();
+            // Fill the required "url" configurable through the Configurable
+            // Variables webview, same helper used by configuration.spec.ts.
+            const configEditor = new ConfigEditor(page.page);
+            await configEditor.init();
+            await configEditor.addConfigTomlValue('url', 'https://example.com');
 
-            // 3. Verify a missing configuration popup/dialog is displayed
-            // Wait for the native VSCode dialog to appear
-            const dialogBox = page.page.locator('.monaco-dialog-box').first();
-            await dialogBox.waitFor({ timeout: 15000 });
+            logStep('Re-running now that the required config is set');
+            await clickRunButton();
 
-            // Verify the dialog title "Missing Config.toml file"
-            const dialogTitle = page.page.getByText('Missing Config.toml file', { exact: true });
-            await dialogTitle.waitFor({ timeout: 5000 });
+            await runningMarker().waitFor({ timeout: 30000 });
+            logStep('Run after filling the missing config reached execution');
 
-            // Verify the dialog buttons are present
-            const createButton = page.page.getByText('Create Config.toml', { exact: true });
-            if (await createButton.isVisible()) {
-                await createButton.click();
-            }
-
-            const runningExecutableLocator = page.page.locator('.xterm-screen', { hasText: 'Running executable' }).first();
-            await runningExecutableLocator.waitFor({ timeout: 30000 });
-        });
-
-        test('Verify process starts', async () => {
-            // 1. Click on the "Run Integration" button
-            // Wait until "Running executable" text appears in the terminal panel
-            const runningExecutableLocator = page.page.locator('.xterm-screen', { hasText: 'Running executable' }).first();
-            await runningExecutableLocator.waitFor({ timeout: 30000 });
-        });
-
-        test('View run output', async () => {
-            // Wait until "Running executable" text appears in the terminal panel
-            const runningExecutableLocator = page.page.locator('.xterm-screen', { hasText: "Running executable" }).first();
-            await runningExecutableLocator.waitFor({ timeout: 30000 });
+            await stopAllRunningIntegrations();
         });
 
         test('Run from command palette', async () => {
+            logStep('Running via the command palette');
             // 1. Open the Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
             await page.page.keyboard.press(process.platform === 'darwin' ? 'Meta+Shift+P' : 'Control+Shift+P');
             await page.page.waitForTimeout(500);
 
-            // 2. Type "Run Integration"
+            // 2. Type "Run Integration" and select the BI.project.run command.
             await page.page.keyboard.type('Run Integration');
             await page.page.waitForTimeout(500);
-
-            // 3. Verify the command is listed
-            // 4. Select the "BI.project.run" command
             await page.page.keyboard.press('Enter');
             await page.page.waitForTimeout(2000);
 
-            // Wait until "Running executable" text appears in the terminal panel
-            const runningExecutableLocator = page.page.locator('.xterm-screen', { hasText: 'Running executable' }).first();
-            await runningExecutableLocator.waitFor({ timeout: 30000 });
+            await runningMarker().waitFor({ timeout: 30000 });
+            logStep('Palette run reached execution');
         });
-
     });
-
-
 }
