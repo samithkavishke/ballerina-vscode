@@ -40,11 +40,6 @@ on:
         type: boolean
         required: false
         default: false
-      runScan:
-        description: 'Run the Trivy vulnerability scan'
-        type: boolean
-        required: false
-        default: false
 
 jobs:
   Build:
@@ -63,7 +58,6 @@ jobs:
       runFastTests: ${{ inputs.runFrontendTests }}
       runBalE2ETests: ${{ inputs.runFrontendTests }}
       runLSTests: ${{ inputs.runBackendTests }}
-      runScan: ${{ inputs.runScan }}
 
   Release:
     name: Release VSIX

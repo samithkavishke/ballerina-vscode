@@ -266,7 +266,6 @@ jobs:
       ballerina: true
       runFastTests: true
       runBalE2ETests: true
-      runScan: true
 
   # ─────────────────────────────────────────────────────────────────────────
   # Daily pre-release — publish the extension VSIX as a GitHub pre-release
