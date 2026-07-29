@@ -232,12 +232,24 @@ the version.
 - `BALLERINA_CENTRAL_ACCESS_TOKEN` — LS publish to Ballerina Central
 - `VSCE_TOKEN` — publish-vsix → VSCode Marketplace
 - `OPENVSX_TOKEN` — publish-vsix → OpenVSX
-- `BI_TEAM_CHAT_API` — daily build success + release announcements (pre-release and final)
-- `EDITOR_TEAM_CHAT_API` — threaded release progress, build/sync failures
+- `EDITOR_TEAM_CHAT_API` — every chat notification: threaded release progress, the release
+  announcement, daily build success, and build/sync failures
 - `CLOUD_EDITOR_BUILDER_REPO` / `CLOUD_EDITOR_BUILDER_REPO_TOKEN` — optional cross-repo dispatch on stable release (publish-vsix)
 - `COPILOT_ROOT_URL` / `COPILOT_DEV_ROOT_URL` / `APPINSIGHTS_INSTRUMENTATION_KEY` — passed through to the build composite action
 
 Configure these in the new repo's settings before triggering anything.
+
+All chat notifications share one secret, so a chat webhook is configured in exactly one place.
+Before this, the daily build used a separate `BI_TEAM_CHAT_API` that was never configured on the
+repo, which is what failed run `30416319364`: an unset secret hands `curl` a URL that is only a
+query string, so it exits 3 with `URL rejected: Malformed input to a URL function` and fails the
+job *after* the build, release and asset uploads have all succeeded.
+
+The release notifications (`actions/release`, `actions/pr`, and the inline steps in
+`release-vsix.yml`) skip with a notice when the secret is empty, so a fork can run a release
+without a webhook. `dailyBuildNotification` and `failure-notification` do **not** — they still
+fail the job on an empty value, which is only safe as long as `EDITOR_TEAM_CHAT_API` stays
+configured.
 
 ## Composite actions under `.github/actions/`
 

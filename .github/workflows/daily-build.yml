@@ -438,7 +438,7 @@ jobs:
         with:
           repo: ${{ github.repository }}
           name: ballerina
-          chatAPI: ${{ secrets.BI_TEAM_CHAT_API }}
+          chatAPI: ${{ secrets.EDITOR_TEAM_CHAT_API }}
           # Rolling tag: each daily run replaces the `nightly` release's assets in
           # place and moves the tag, so the download URL never changes and always
           # serves the latest build.
@@ -480,7 +480,7 @@ jobs:
         with:
           title: Ballerina
           fileName: ballerina
-          chatAPI: ${{ secrets.BI_TEAM_CHAT_API }}
+          chatAPI: ${{ secrets.EDITOR_TEAM_CHAT_API }}
 
   NotifyFailure:
     name: Notify (failure)
