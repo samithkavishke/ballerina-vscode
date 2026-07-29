@@ -19,7 +19,6 @@ plugins {
     id "com.github.spotbugs-base" version "${spotbugsPluginVersion}"
     id "com.github.johnrengelman.shadow" version "${shadowJarPluginVersion}"
     id "de.undercouch.download" version "${downloadPluginVersion}"
-    id "net.researchgate.release" version "${releasePluginVersion}"
     id "org.cyclonedx.bom" version "${cyclonedxBomPluginVersion}"
     id "java"
 }
@@ -99,11 +98,6 @@ subprojects {
         /* Ballerina Persist Tool */
         ballerinaStdLibs "io.ballerina:persist-tools:${persistToolVersion}"
     }
-}
-
-def moduleVersion = project.version
-if (moduleVersion.indexOf('-') != -1) {
-    moduleVersion = moduleVersion.substring(0, moduleVersion.indexOf('-'))
 }
 
 // TODO: Remove this once the workspace manager is refactored to import modules where necessary.
@@ -406,18 +400,6 @@ publishing {
                 password = System.getenv("packagePAT") ?: project.findProperty("packagePAT")
             }
         }
-    }
-}
-
-release {
-    failOnPublishNeeded = false
-
-    buildTasks = ['build']
-    versionPropertyFile = 'gradle.properties'
-    tagTemplate = 'v${version}'
-    git {
-        requireBranch = "release-${moduleVersion}"
-        pushToRemote = 'origin'
     }
 }
 

@@ -111,12 +111,23 @@ Running that exact command locally is the closest reproduction.
 
 ### "Change the LS jar shipped in the vsix"
 
-`packages/ballerina-extension/scripts/copy-ls.js` decides which jar lands in
-`ls/`. Read it before changing anything LS-related. Override knobs:
+`packages/ballerina-extension/scripts/copy-ls.js` copies the jar into `ls/`. It is
+always the local `pack` output of `packages/ballerina-language-server` — there is no
+download path and nothing to select. To change the shipped jar, rebuild the LS
+(`rush build --to ballerina-language-server`).
 
-- `BALLERINA_LS_SOURCE=download` — always download from GH releases
-- `BALLERINA_LS_TAG=<tag>` — pin a specific release
-- *(default)* — prefer the local pack output, fall back to download
+**The version is authored in exactly one file: the root `package.json`.** To change it,
+change that and nothing else. Two files hold a *generated* copy, both written by
+`common/scripts/sync-version.js`, which each project chains at the head of its own `build`:
+
+- `packages/ballerina-extension/package.json` (`version`) — read by `vsce`.
+- `packages/ballerina-language-server/gradle.properties` (`version=`) — read by Gradle;
+  `build.gradle` has no version logic. `-Pversion=<v>` overrides for a one-off build.
+
+Editing either by hand is pointless — the next build overwrites it. Do not *delete* the
+`gradle.properties` key either: the sync re-inserts it, but a direct `./gradlew` run before
+that would fall back to `unspecified` and emit
+`ballerina-language-server-unspecified.jar`. Never "fix" a version in a generated file.
 
 ### "Add a dependency to a package"
 

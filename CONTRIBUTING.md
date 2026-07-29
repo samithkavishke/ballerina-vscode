@@ -223,26 +223,33 @@ so untested siblings of the reported bug are caught too.
 
 ## Working with the language server jar
 
-The extension reads its LS jar from `packages/ballerina-extension/ls/*.jar`. By default
-the `postbuild` step calls `provisionLS`, which:
+The extension reads its LS jar from `packages/ballerina-extension/ls/*.jar`. That jar is
+**always** the `pack` output of `packages/ballerina-language-server` in this repo: the
+`postbuild` step calls `provisionLS` (`scripts/copy-ls.js`), which copies the newest
+`build/ballerina-language-server-*.jar` into `ls/` and fails with instructions if there
+isn't one. There is no download fallback and no way to point it at a different LS.
 
-1. If a local pack jar exists at `packages/ballerina-language-server/build/ballerina-language-server-*.jar`,
-   copies it into `ls/`.
-2. Otherwise, falls back to `scripts/download-ls.js` and downloads the latest GitHub
-   release jar (`v1.6.0` at time of writing).
+The LS has **no independent version** — `version=` in `gradle.properties` is generated from
+the root `package.json` by the sync step at the head of its build, so
+`ls/ballerina-language-server-<v>.jar` and the `ballerina-<v>.vsix` around it always carry
+the same `<v>`, locally as well as in CI.
 
-Override knobs:
+Building the extension therefore requires being able to build the LS: JDK 21 and
+GitHub Packages credentials (`packageUser` / `packagePAT` in `~/.gradle/gradle.properties`).
 
 ```bash
-# Force-download even if a local pack jar exists
-BALLERINA_LS_SOURCE=download rush build --to ballerina
+# Rebuild the LS and re-provision it into the extension. This is the path that
+# refreshes gradle.properties from the root version.
+rush build --to ballerina-language-server
+rush build --to ballerina
 
-# Pin a specific release tag
-BALLERINA_LS_TAG=v1.6.0 rush build --to ballerina
-
-# Pick a specific local jar manually (delete what's in build/, then build again)
-rm packages/ballerina-language-server/build/ballerina-language-server-*.jar
+# Directly with Gradle — uses whatever gradle.properties currently holds, so sync first
+# if the root version has moved
+node common/scripts/sync-version.js
 cd packages/ballerina-language-server && ./gradlew pack -x test
+
+# Force a one-off version (does not touch any file)
+./gradlew pack -x test -Pversion=9.9.9-local
 ```
 
 ## Working with the TextMate grammar
@@ -281,9 +288,36 @@ monorepo. If you want them to land here, push them upstream to
 - `main` — active development
 - `stable/ballerina*` — release branches
 - `migrate/*` — long-lived migration work
+- `nightly` — **machine-managed, do not touch.** `daily-build.yml` resets it to
+  `origin/main` and force-pushes it every night, so it is always `main` plus a single
+  version commit. Never target it with a PR and never merge it anywhere; anything
+  committed to it is gone by the next run.
 
 PR → `main` triggers `pull-request.yml` (extension build + tests, LS build if you
 touched LS code). PR → `stable/ballerina` adds the bal E2E suite automatically.
+
+The version lives in the **root `package.json`** — that is the single source of truth —
+and on `main` it always names the *next* release as a snapshot, e.g. `5.14.0-SNAPSHOT`.
+It is the only version anyone edits. Two files carry a *generated* copy, both written by
+`common/scripts/sync-version.js`, which each project chains at the head of its own `build`:
+
+- `packages/ballerina-extension/package.json` — read by `vsce` off disk, as it always has
+  been, and shipped inside the VSIX as `extension/package.json`.
+- `packages/ballerina-language-server/gradle.properties` (`version=`) — read by Gradle
+  normally; `build.gradle` contains no version logic. `-Pversion=<v>` overrides for a
+  one-off build.
+
+**Do not edit either** — a build overwrites them. Note the guarantee covers builds via
+rush/pnpm: a bare `./gradlew pack` uses whatever `gradle.properties` holds, so run
+`rush build --to ballerina-language-server` (or `node common/scripts/sync-version.js`) after
+changing the root version.
+
+`-SNAPSHOT` is never shipped: each publishable build derives a concrete version from it
+(nightlies and pre-releases become `major.(minor-1).<yymmddHHmm>`, so `5.14.0-SNAPSHOT`
+ships nightly as `5.13.2607290130` and releases as `5.14.0`), and the build fails
+outright if the suffix survives to packaging. After a release, the release workflow opens
+a PR returning `main` to the next `-SNAPSHOT` — without it the next nightly cannot derive
+a version. See the Versioning section of `.github/workflows/README.md` for the full table.
 
 Release process is documented at `.github/workflows/README.md`:
 1. **release-vsix** workflow (manual dispatch) — builds, creates GitHub release, opens
@@ -309,7 +343,9 @@ Release process is documented at `.github/workflows/README.md`:
 | `Dependency resolution is looking for ... JVM 17, but ... 21 or newer` | `JAVA_HOME` points at JDK 17 | `export JAVA_HOME=$(/usr/libexec/java_home -v 21)` |
 | `tracked input file` rush error | Stale `lib/`/`build/` dir in a package | Run `rush purge && rush update` and rebuild |
 | `Cannot find module '@wso2/...'` after pulling | Submodule out of date / lockfile changed | `git submodule update --init --recursive && rush update` |
-| LS jar in vsix is wrong version | `provisionLS` chose downloaded over local (or vice versa) | See "Working with the language server jar" above |
+| LS jar in vsix is wrong version | A stale jar in `packages/ballerina-language-server/build/` (`copy-ls.js` picks the newest by mtime) | `rm packages/ballerina-language-server/build/ballerina-language-server-*.jar` and rebuild |
+| VSIX has an unexpected version | The extension manifest was edited by hand, or `pnpm run package` was run without the preceding `syncVersion` | Set the version in the **root** `package.json`, then `rush build --to ballerina` (or `pnpm run syncVersion` first) |
+| `No locally-built LS jar found` from `provisionLS` | The LS was never built (needs JDK 21 + `packageUser`/`packagePAT`) | `rush build --to ballerina-language-server` |
 | `ERR_PNPM_WORKSPACE_PKG_NOT_FOUND` | Missing rush project registration or submodule not initialized | Check `rush.json`; verify `submodules/wso2-vscode-extensions/` is populated |
 
 ## Where to read next
