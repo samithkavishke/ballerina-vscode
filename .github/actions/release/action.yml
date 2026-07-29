@@ -30,6 +30,13 @@ inputs:
       fails the job — a silently missing asset is worse than a red build.
     required: false
     default: ''
+  prerelease:
+    description: >-
+      Mark the GitHub release as a pre-release. Defaults to true, which is correct
+      for the rolling nightly and for pre-release dispatches; a real release passes
+      false so it is not left mislabelled when publish-vsix.yml is not run.
+    required: false
+    default: 'true'
   releaseBranch:
     description: >-
       Commit the resolved version and push 'release/<version>', then tag that
@@ -175,9 +182,21 @@ runs:
         # pushed, otherwise the commit the workflow itself is running on (pre-releases, and the
         # rolling nightly, whose version commit is already on the nightly branch).
         TARGET_COMMIT: ${{ steps.release_branch.outputs.sha || github.sha }}
+        PRERELEASE: ${{ inputs.prerelease }}
       run: |
         set -euo pipefail
         API="https://api.github.com/repos/${REPO}"
+
+        # Validated before it reaches jq below: --argjson parses the value as JSON, so
+        # anything other than a bare true/false would fail with an opaque jq error
+        # partway through releasing.
+        case "${PRERELEASE}" in
+          true|false) ;;
+          *)
+            echo "::error::prerelease must be 'true' or 'false', got '${PRERELEASE}'" >&2
+            exit 1
+            ;;
+        esac
 
         # Bounded timeouts so a hung GitHub API call can't stall the job until
         # the job-level timeout. The metadata calls are small; the asset upload
@@ -213,7 +232,8 @@ runs:
               --arg tag "${TAG}" \
               --arg name "${RELEASE_NAME}" \
               --arg commit "${TARGET_COMMIT}" \
-              '{tag_name: $tag, target_commitish: $commit, draft: false, name: $name, prerelease: true}')")
+              --argjson prerelease "${PRERELEASE}" \
+              '{tag_name: $tag, target_commitish: $commit, draft: false, name: $name, prerelease: $prerelease}')")
           id=$(echo "${createResponse}" | jq -r '.id // empty')
           if [ -z "${id}" ]; then
             echo "Failed to create release:" >&2
@@ -309,7 +329,8 @@ runs:
             -H "Authorization:token ${GH_TOKEN}" \
             "${API}/releases/${id}" \
             -d "$(jq -n --arg name "${RELEASE_NAME}" \
-              '{name: $name, draft: false, prerelease: true}')")
+              --argjson prerelease "${PRERELEASE}" \
+              '{name: $name, draft: false, prerelease: $prerelease}')")
           if [ -z "$(echo "${releasePatch}" | jq -r '.id // empty')" ]; then
             echo "Failed to update release ${id}:" >&2
             echo "${releasePatch}" >&2

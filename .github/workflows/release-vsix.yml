@@ -152,6 +152,10 @@ jobs:
           # the dispatched commit and create no branch.
           releaseBranch: ${{ inputs.isPreRelease == false }}
           ballerina: true
+          # The GitHub label follows the operator's flag, rather than being created as a
+          # pre-release and demoted by publish-vsix.yml — a release cut without running
+          # that workflow would otherwise stay mislabelled with nothing to signal it.
+          prerelease: ${{ inputs.isPreRelease }}
           # Attach the bundled language server too, so it is downloadable on its own —
           # debugging an LS regression, or pointing an existing install at it via the
           # ballerina.langServerPath setting. This is the exact jar inside the VSIX

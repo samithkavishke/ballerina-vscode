@@ -202,6 +202,13 @@ takes the `VSIX` workflow artifact by run ID (30-day retention), not by release 
 lost is the standalone LS jar download, since the artifact holds only the VSIX — dispatch with
 `githubRelease: true` when the jar is wanted.
 
+The release's **pre-release label follows `isPreRelease`** (`actions/release`'s `prerelease`
+input, default `true`, which is what the nightly relies on). It used to be hardcoded `true` for
+everything, with `publish-vsix.yml` demoting a real release to a proper release once the
+marketplace served it. That staged promotion had a failure mode with no signal: cut a release
+and skip publishing, and it stayed labelled a pre-release forever. `publish-vsix.yml` still
+patches the label, which is now a harmless no-op for releases cut after this change.
+
 ## The bundled language server
 
 The jar in `packages/ballerina-extension/ls/` is **always** the `pack` output of
