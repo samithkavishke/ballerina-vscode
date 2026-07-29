@@ -10,8 +10,9 @@ inputs:
   nightly:
     description: >-
       Nightly build: stamp the timestamped version derived from the root
-      package.json's '-SNAPSHOT' version (major.(minor-1).<yymmddHHmm>) without
-      applying 'vsce package --pre-release'.
+      package.json's '-SNAPSHOT' version (major.(minor-1).<yymmddHHmm>).
+      Selects the version only; 'vsce package --pre-release' follows
+      isPreRelease, which a nightly also passes.
     required: false
     default: 'false'
   enableCache:

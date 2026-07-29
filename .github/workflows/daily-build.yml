@@ -392,15 +392,14 @@ jobs:
       ballerina: false
       runFastTests: true
       runBalE2ETests: true
-      # isPreRelease: false is deliberate and independent of the version, which is
-      # already committed on the nightly branch. isPreRelease is exported into the rush
-      # build env (actions/build), where common-libs/scripts/package-vsix.js turns it
-      # into 'vsce package --pre-release'. Nightlies are therefore packaged WITHOUT
-      # that flag, on purpose: the flag marks the VSIX as a pre-release build, which
-      # moves whoever installs it onto the Marketplace pre-release channel for future
-      # updates. A nightly is unvetted main, not an opt-in supported channel, so it
-      # should not silently enroll testers in one.
-      isPreRelease: false
+      # A nightly is a pre-release, so it is packaged like one: isPreRelease is exported
+      # into the rush build env (actions/build), where common-libs/scripts/package-vsix.js
+      # turns it into 'vsce package --pre-release'. Nightly and the dispatched pre-release
+      # differ only in how they are branched and tagged, never in how they are packaged.
+      #
+      # Independent of the version, which is already committed on the nightly branch:
+      # updateVersion is gated on 'ballerina', false above, so this cannot re-stamp it.
+      isPreRelease: true
       nightly: true
 
   # ─────────────────────────────────────────────────────────────────────────

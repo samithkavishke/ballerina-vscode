@@ -24,7 +24,7 @@ Each has `defaults.run.working-directory: packages/ballerina-language-server` in
 | `build.yml` | `workflow_call` only | Reusable build pipeline (ballerina-only) |
 | `daily-build.yml` | nightly cron + manual | Syncs the `nightly` branch, runs the LS multi-branch pack/test/Windows-build matrix **and** calls `build.yml` for the extension, publishes the rolling `nightly` GitHub pre-release, then dispatches success/failure notifications. See [Versioning](#versioning) and [The nightly branch](#the-nightly-branch) |
 | `pull-request.yml` | PRs + manual | Detects changes with `dorny/paths-filter`; if anything build-relevant changed, runs `build.yml` which builds the entire chain (LS via Gradle, then all TS packages and the extension VSIX via rush) in a single job. Windows LS coverage runs in `daily-build.yml` only. |
-| `release-vsix.yml` | manual dispatch | Builds, creates the GitHub release, pushes `release/<version>`, and opens the release PR into the `X.Y.x` line. See [Branches](#branches) |
+| `release-vsix.yml` | manual dispatch | Builds, then for a real release creates the GitHub release, pushes `release/<version>` and opens the release PR into the `X.Y.x` line. For a pre-release the GitHub release is opt-in (`githubRelease`) and nothing is branched. See [Branches](#branches) |
 | `publish-vsix.yml` | manual dispatch | Publishes a built VSIX (passed by `workflowRunId`) to VSCode Marketplace + OpenVSX |
 | `cache-cleanup.yml` | PR closed + manual | Generic — usable as-is |
 | `sync-main-with-releases.yml` | PR merged to a `*.*.x` line branch | Opens an auto-sync PR back to `main` |
@@ -90,7 +90,7 @@ The derivation depends on the *shape* of the root version, not on the branch:
 | Build | Root version | Result | Example | `vsce --pre-release` |
 |---|---|---|---|---|
 | PR / local | either | untouched | `5.14.0-SNAPSHOT` (never packaged) | no |
-| Nightly | `-SNAPSHOT` | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290130` | **no** — see below |
+| Nightly | `-SNAPSHOT` | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290130` | yes |
 | Pre-release (`isPreRelease: true`) | `-SNAPSHOT` | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290145` | yes |
 | Pre-release | concrete | as authored | `5.13.2607290145` | yes |
 | Release | `-SNAPSHOT` | minus `-SNAPSHOT` | `5.14.0` | no |
@@ -126,11 +126,13 @@ A note on `npm version`: the version is always written through it and **read bac
 (notably stripping a leading zero that an appended timestamp can produce, which is not
 strict semver).
 
-Nightlies deliberately pass `isPreRelease: false`. That input does more than pick a
-version suffix: it is exported into the rush build env, where
-`common-libs/scripts/package-vsix.js` turns it into `vsce package --pre-release`, and
-that flag moves whoever installs the VSIX onto the Marketplace pre-release channel for
-future updates. A nightly is unvetted `main`, not an opt-in supported channel.
+`isPreRelease` does more than pick a version: it is exported into the rush build env, where
+`common-libs/scripts/package-vsix.js` turns it into `vsce package --pre-release`. A nightly
+passes `isPreRelease: true` for exactly that reason — a nightly *is* a pre-release, its
+derived version already sits on the odd-minor pre-release channel, and the two paths should
+differ only in how they are branched and tagged, never in how they are packaged. It does not
+affect the nightly's version, which is already committed on the `nightly` branch:
+`updateVersion` is gated on the `ballerina` input, which the daily build passes as `false`.
 
 ## Branches
 
@@ -178,9 +180,27 @@ one commit that pins both its source and its version.
 - The force-push uses `GITHUB_TOKEN`, whose pushes do not trigger workflows, so the
   daily build cannot re-enter itself.
 
-The rolling `nightly` GitHub pre-release carries two assets — the VSIX and the bundled
-LS jar — replaced in place (upload-then-rename, old asset deleted only after the new
-one is verified) so the download URLs keep working even if a run fails.
+Every GitHub release carries two assets — the VSIX and the bundled LS jar — so the server
+can be downloaded on its own to debug a regression, or pointed at an existing install via
+`ballerina.langServerPath`. It is the exact jar inside the VSIX, packed at the same version,
+so the two can never disagree about what was built. On the rolling `nightly` release they are
+replaced in place (upload-then-rename, old asset deleted only after the new one is verified)
+so the download URLs keep working even if a run fails.
+
+**A pre-release does not get a GitHub release unless asked.** `release-vsix.yml` takes a
+`githubRelease` input, off by default, and a real release ignores it:
+
+| Dispatch | GitHub release + tag | Version commit + `release/X.Y.Z` |
+|---|---|---|
+| Release (`isPreRelease: false`) | always | yes |
+| Pre-release, `githubRelease: false` (default) | no | no |
+| Pre-release, `githubRelease: true` | yes, on the dispatched commit | no |
+
+A real release is never gated because its version commit, branch and tag all come out of that
+one step. Skipping the release does **not** block marketplace publishing: `publish-vsix.yml`
+takes the `VSIX` workflow artifact by run ID (30-day retention), not by release tag. What is
+lost is the standalone LS jar download, since the artifact holds only the VSIX — dispatch with
+`githubRelease: true` when the jar is wanted.
 
 ## The bundled language server
 

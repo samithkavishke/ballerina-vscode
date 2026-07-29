@@ -22,8 +22,9 @@ on:
       nightly:
         description: >-
           Nightly build — stamp the version derived from the root package.json's
-          '-SNAPSHOT' version (major.(minor-1).<yymmddHHmm>) without applying
-          'vsce package --pre-release'
+          '-SNAPSHOT' version (major.(minor-1).<yymmddHHmm>). Independent of
+          isPreRelease, which selects 'vsce package --pre-release'; a nightly
+          passes both.
         default: false
         type: boolean
       enableCache:

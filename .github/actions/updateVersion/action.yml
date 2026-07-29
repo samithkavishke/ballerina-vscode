@@ -23,10 +23,9 @@ inputs:
     description: >-
       Nightly build. Uses the same derivation as a pre-release —
       major.(minor-1).<yymmddHHmm> from the root '-SNAPSHOT' version, see
-      common/scripts/nightly-version.js — but is set independently of
-      isPreRelease: nightly builds pass isPreRelease=false so
-      'vsce package --pre-release' is NOT applied and installers are not enrolled
-      onto the Marketplace pre-release channel.
+      common/scripts/nightly-version.js — but is a separate input because it selects
+      only the version. Packaging is isPreRelease's job, and a nightly passes both:
+      it is a pre-release, so it is packaged as one.
     default: 'false'
 outputs:
   version:

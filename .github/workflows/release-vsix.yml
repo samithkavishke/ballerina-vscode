@@ -8,6 +8,11 @@ on:
         required: true
         type: boolean
         default: true
+      githubRelease:
+        description: 'Publish a GitHub release (tag + VSIX and LS jar assets). Applies to pre-releases only — a real release always publishes one. Off by default: a pre-release is normally just handed over as a VSIX or pushed to the marketplaces, neither of which needs a permanent tag'
+        type: boolean
+        required: false
+        default: false
       version:
         description: 'Explicit version override. Leave empty to derive the version from the root package.json'
         type: string
@@ -129,15 +134,35 @@ jobs:
             "${CHAT_API}&messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD" \
             -d "$body"
 
+      # A real release always publishes one — its version commit, 'release/X.Y.Z' branch and
+      # tag all come out of this step, so gating it would leave a release with none of them.
+      # For a pre-release the tag is opt-in: most are handed over as a VSIX or pushed straight
+      # to the marketplaces, and a permanent tag per pre-release is just noise.
       - name: Create a release in ${{ github.repository }} repo
+        if: ${{ inputs.isPreRelease == false || inputs.githubRelease }}
         uses: ./.github/actions/release
         with:
           repo: ${{ github.repository }}
           name: ballerina
           chatAPI: ${{ secrets.EDITOR_TEAM_CHAT_API }}
           threadKey: ballerina-release-${{ github.run_id }}
+          # Real releases only: commit the version the build packaged (updateVersion wrote it
+          # into the working tree, so it exists in no commit yet) and push 'release/<version>'
+          # at that commit, which is then what the tag points at. Pre-releases keep tagging
+          # the dispatched commit and create no branch.
+          releaseBranch: ${{ inputs.isPreRelease == false }}
+          ballerina: true
+          # Attach the bundled language server too, so it is downloadable on its own —
+          # debugging an LS regression, or pointing an existing install at it via the
+          # ballerina.langServerPath setting. This is the exact jar inside the VSIX
+          # (copy-ls.js put it there) packed at the same version, so the two assets can
+          # never disagree about what was built. Same glob the daily build passes.
+          extraAssets: packages/ballerina-extension/ls/ballerina-language-server-*.jar
 
+      # Same condition as the release step above: this card's Download button points at
+      # releases/tag/v<version>, which 404s when no release was created.
       - name: BI Team Release Announcement
+        if: ${{ inputs.isPreRelease == false || inputs.githubRelease }}
         env:
           CHAT_API: ${{ secrets.BI_TEAM_CHAT_API }}
         run: |
@@ -192,7 +217,6 @@ jobs:
         with:
           isPreRelease: ${{ github.event.inputs.isPreRelease }}
           ref_name: ${{ github.ref_name }}
-          ballerina: true
           chatAPI: ${{ secrets.EDITOR_TEAM_CHAT_API }}
           threadKey: ballerina-release-${{ github.run_id }}
 
