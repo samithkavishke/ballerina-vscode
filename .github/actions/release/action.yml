@@ -30,6 +30,24 @@ inputs:
       fails the job — a silently missing asset is worse than a red build.
     required: false
     default: ''
+  releaseBranch:
+    description: >-
+      Commit the resolved version and push 'release/<version>', then tag that
+      commit instead of the workflow's own. Set only for a real release; the
+      version that was packaged lives in the working tree (updateVersion wrote it
+      during the build) and is otherwise never committed anywhere. Left false for
+      pre-releases and for the rolling nightly, whose version commit sync-nightly
+      has already made and pushed.
+    required: false
+    default: 'false'
+  ballerina:
+    description: 'Stage the Ballerina version files when committing'
+    required: false
+    default: 'false'
+  commonLibs:
+    description: 'Stage the common-libs version files when committing'
+    required: false
+    default: 'false'
 
 runs:
   using: "composite"
@@ -61,6 +79,88 @@ runs:
         echo "releaseTag=$releaseTag" >> $GITHUB_OUTPUT
         echo "releaseName=$releaseName" >> $GITHUB_OUTPUT
 
+    # ── Release refs ─────────────────────────────────────────────────────────
+    # Only for a real release. The version the build packaged exists solely in the
+    # working tree — updateVersion wrote it there during the build — so committing it
+    # here is what gives the release a commit whose tree actually carries its version,
+    # and the tag below then points at that commit rather than at the dispatched one.
+    - name: Config git
+      if: ${{ inputs.releaseBranch == 'true' }}
+      shell: bash
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
+    - name: Resolve release refs
+      if: ${{ inputs.releaseBranch == 'true' }}
+      shell: bash
+      id: refs
+      env:
+        VSIX_VERSION: ${{ steps.vsix.outputs.version }}
+      run: |
+        set -euo pipefail
+        version=$(node -p "require('./package.json').version")
+        case "${version}" in
+          *-SNAPSHOT)
+            echo "::error::Refusing to release the snapshot version '${version}';" \
+                 "updateVersion should have resolved it before packaging."
+            exit 1
+            ;;
+        esac
+        # The VSIX is named from the generated extension manifest, which sync-version.js
+        # generates from this same root version, so the two must agree. If they do not, the
+        # artifact about to be tagged is not the one this version describes.
+        if [ "${version}" != "${VSIX_VERSION}" ]; then
+          echo "::error::Root package.json says ${version} but the VSIX is ${VSIX_VERSION}."
+          exit 1
+        fi
+        # Even minors are release lines, odd minors the pre-release channel, so a release
+        # always belongs to the 'X.Y.x' line of its own minor.
+        line=$(node -e '
+          const [major, minor] = process.argv[1].split(".");
+          console.log(`${major}.${minor}.x`);
+        ' "${version}")
+        echo "version=${version}" >> "$GITHUB_OUTPUT"
+        echo "line=${line}" >> "$GITHUB_OUTPUT"
+        echo "branch=release/${version}" >> "$GITHUB_OUTPUT"
+
+    - name: Stage Ballerina version files
+      if: ${{ inputs.releaseBranch == 'true' && inputs.ballerina == 'true' }}
+      shell: bash
+      # The root package.json is the authored version; the extension's manifest and the
+      # LS's gradle.properties are both generated from it by sync-version.js, so all
+      # three have to travel together or the committed tree is internally inconsistent.
+      run: git add package.json packages/*/package.json packages/ballerina-language-server/gradle.properties
+
+    - name: Stage common lib version files
+      if: ${{ inputs.releaseBranch == 'true' && inputs.commonLibs == 'true' }}
+      shell: bash
+      run: git add submodules/wso2-vscode-extensions/workspaces/common-libs/*/package.json
+
+    - name: Commit version and push the release branch
+      if: ${{ inputs.releaseBranch == 'true' }}
+      shell: bash
+      id: release_branch
+      run: |
+        set -euo pipefail
+        branch="${{ steps.refs.outputs.branch }}"
+        git diff --staged --quiet || git commit -m "Update version to ${{ steps.refs.outputs.version }}"
+
+        # Reused rather than recreated, so re-running a release (or a branch someone cut by
+        # hand to carry a fix) does not fail on an existing ref. In that case the tag has to
+        # follow the branch that is actually there: tagging the local commit would name a
+        # commit the remote does not have, and the releases API would reject it.
+        if git ls-remote --exit-code --heads origin "${branch}" >/dev/null 2>&1; then
+          sha=$(git ls-remote --heads origin "${branch}" | cut -f1)
+          echo "::notice::${branch} already exists at ${sha}; leaving it untouched."
+        else
+          sha=$(git rev-parse HEAD)
+          git push origin "${sha}:refs/heads/${branch}"
+          echo "Created ${branch} at ${sha}"
+        fi
+        echo "sha=${sha}" >> "$GITHUB_OUTPUT"
+
     - name: Create a release in ${{ inputs.repo }} repo
       shell: bash
       env:
@@ -71,6 +171,10 @@ runs:
         VSIX: ${{ steps.vsix.outputs.vsixName }}
         EXTRA_ASSETS: ${{ inputs.extraAssets }}
         ROLLING: ${{ inputs.tag != '' }}
+        # The commit the release tag points at: the version commit when a release branch was
+        # pushed, otherwise the commit the workflow itself is running on (pre-releases, and the
+        # rolling nightly, whose version commit is already on the nightly branch).
+        TARGET_COMMIT: ${{ steps.release_branch.outputs.sha || github.sha }}
       run: |
         set -euo pipefail
         API="https://api.github.com/repos/${REPO}"
@@ -108,7 +212,7 @@ runs:
             -d "$(jq -n \
               --arg tag "${TAG}" \
               --arg name "${RELEASE_NAME}" \
-              --arg commit "${GITHUB_SHA}" \
+              --arg commit "${TARGET_COMMIT}" \
               '{tag_name: $tag, target_commitish: $commit, draft: false, name: $name, prerelease: true}')")
           id=$(echo "${createResponse}" | jq -r '.id // empty')
           if [ -z "${id}" ]; then
@@ -231,6 +335,12 @@ runs:
     - name: "Release Notification"
       shell: bash
       run: |
+        # Unset on a fork, where the curl below would target a bare query string, fail, and
+        # fail the job even though the release itself succeeded.
+        if [ -z "${{ inputs.chatAPI }}" ]; then
+          echo "::notice::chatAPI is empty; skipping the release notification."
+          exit 0
+        fi
         THREAD_KEY="${{ inputs.threadKey }}"
         if [ -n "${THREAD_KEY}" ]; then
           THREAD_FIELD='"thread": {"threadKey": "'"${THREAD_KEY}"'"},'

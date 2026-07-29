@@ -57,11 +57,24 @@ runs:
     # toward it, so they are published as major.(minor-1).<yymmddHHmm> — above every
     # release of the previous line, below the release main is heading for. See
     # common/scripts/nightly-version.js for the full rationale.
+    #
+    # Only a '-SNAPSHOT' root is derived from, and only main carries one. Release
+    # lines ('5.14.x') and staging branches ('alpha') carry a concrete version that
+    # is authored by hand, so a pre-release cut from one of those ships exactly what
+    # the file says — nightly-version.js would (correctly) refuse to derive from it.
     - name: Set timestamped version
       shell: bash
       if: ${{ inputs.nightly == 'true' || inputs.isPreRelease == 'true' }}
       run: |
         set -euo pipefail
+        currentVersion=$(node -p "require('./package.json').version")
+        case "${currentVersion}" in
+          *-SNAPSHOT) ;;
+          *)
+            echo "Root version ${currentVersion} is not a snapshot; publishing it as authored."
+            exit 0
+            ;;
+        esac
         newVersion=$(node common/scripts/nightly-version.js --timestamp "${{ steps.timestamp.outputs.timestamp }}")
         echo "Timestamped version: $newVersion"
         npm version "$newVersion" --no-git-tag-version

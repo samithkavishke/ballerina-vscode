@@ -24,10 +24,10 @@ Each has `defaults.run.working-directory: packages/ballerina-language-server` in
 | `build.yml` | `workflow_call` only | Reusable build pipeline (ballerina-only) |
 | `daily-build.yml` | nightly cron + manual | Syncs the `nightly` branch, runs the LS multi-branch pack/test/Windows-build matrix **and** calls `build.yml` for the extension, publishes the rolling `nightly` GitHub pre-release, then dispatches success/failure notifications. See [Versioning](#versioning) and [The nightly branch](#the-nightly-branch) |
 | `pull-request.yml` | PRs + manual | Detects changes with `dorny/paths-filter`; if anything build-relevant changed, runs `build.yml` which builds the entire chain (LS via Gradle, then all TS packages and the extension VSIX via rush) in a single job. Windows LS coverage runs in `daily-build.yml` only. |
-| `release-vsix.yml` | manual dispatch | Builds, creates GitHub release, opens version-bump PR back to `stable/ballerina` |
+| `release-vsix.yml` | manual dispatch | Builds, creates the GitHub release, pushes `release/<version>`, and opens the release PR into the `X.Y.x` line. See [Branches](#branches) |
 | `publish-vsix.yml` | manual dispatch | Publishes a built VSIX (passed by `workflowRunId`) to VSCode Marketplace + OpenVSX |
 | `cache-cleanup.yml` | PR closed + manual | Generic — usable as-is |
-| `sync-main-with-releases.yml` | PR merged to `stable/ballerina**` | Opens an auto-sync PR back to `main` |
+| `sync-main-with-releases.yml` | PR merged to a `*.*.x` line branch | Opens an auto-sync PR back to `main` |
 
 ## Versioning
 
@@ -36,6 +36,14 @@ shipped version, and on `main` it always carries the *next* release as a snapsho
 `major.minor.patch-SNAPSHOT` (e.g. `5.14.0-SNAPSHOT`). `-SNAPSHOT` is never shipped —
 every publishable build derives a concrete version from it, and `updateVersion` fails
 the build if one reaches packaging with the suffix intact.
+
+**Only `main` uses `-SNAPSHOT`.** Release lines (`5.14.x`) and staging branches (`alpha`)
+carry a concrete version that is authored by hand, and builds from those ship it as-is.
+See [Branches](#branches).
+
+**Even minors are release lines; odd minors are the pre-release channel** — the VS Code
+convention, and the reason for the arithmetic below. `main`'s snapshot therefore always
+names an even minor.
 
 **It is the only version anyone edits.** Two files carry a **generated** copy of it, both written by
 `common/scripts/sync-version.js`, which each project chains at the head of its own `build`
@@ -77,28 +85,41 @@ path downloads it there (`test.list.ts`). `setup.ts` makes the same exclusion.
 `package.json` is the only file it touches. It applies an optional explicit override, then
 derives the version for the build type.
 
-| Build | Version | Example (from `5.14.0-SNAPSHOT`) | `vsce --pre-release` |
-|---|---|---|---|
-| PR / local | untouched | `5.14.0-SNAPSHOT` (never packaged) | no |
-| Nightly | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290130` | **no** — see below |
-| Pre-release (`release-vsix.yml`, `isPreRelease: true`) | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290145` | yes |
-| Release | root version minus `-SNAPSHOT` | `5.14.0` | no |
+The derivation depends on the *shape* of the root version, not on the branch:
 
-Nightlies and pre-releases share one derivation (`common/scripts/nightly-version.js`),
-which **decrements the minor** so the version sorts above every real release of the
+| Build | Root version | Result | Example | `vsce --pre-release` |
+|---|---|---|---|---|
+| PR / local | either | untouched | `5.14.0-SNAPSHOT` (never packaged) | no |
+| Nightly | `-SNAPSHOT` | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290130` | **no** — see below |
+| Pre-release (`isPreRelease: true`) | `-SNAPSHOT` | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290145` | yes |
+| Pre-release | concrete | as authored | `5.13.2607290145` | yes |
+| Release | `-SNAPSHOT` | minus `-SNAPSHOT` | `5.14.0` | no |
+| Release | concrete | as authored | `5.14.1` | no |
+
+Nightlies and snapshot-based pre-releases share one derivation
+(`common/scripts/nightly-version.js`), which **decrements the minor** — landing on an odd
+one, the pre-release channel — so the version sorts above every real release of the
 previous line (`5.13.4` < `5.13.2607290130`) and below the release `main` is heading for
 (`5.13.2607290130` < `5.14.0`). Publishing either as `5.14.x` would make it outrank the
 eventual `5.14.0` and VS Code would never update off it. The timestamp is
-minute-granular so a nightly and a pre-release cut on the same day cannot collide.
+minute-granular so a nightly and a pre-release cut on the same day cannot collide, and it
+goes in the *patch* position because VS Code extension versions must be three integers —
+`5.14.0-alpha.1` is not available.
 
-The script hard-fails on a root version that is not `major.minor.patch-SNAPSHOT` — so
-dispatching a pre-release from a branch carrying a concrete version stops with an
-explicit error instead of producing an unordered one — and on a minor of `0` (there is
-no `minor - 1` to publish under; a new major line needs a human decision).
+The script hard-fails on a root version that is not `major.minor.patch-SNAPSHOT`, and on a
+minor of `0` (there is no `minor - 1` to publish under; a new major line needs a human
+decision). `updateVersion` therefore only calls it when the root actually carries
+`-SNAPSHOT`; on a release line or staging branch the authored version is published as-is.
+**Consequence:** those branches must be bumped by hand between releases, or the second run
+reuses a version that both the Marketplace and the git tag reject.
 
-After a release, `.github/actions/pr` opens a PR returning `main` to
-`major.(minor+1).0-SNAPSHOT`. That is not cosmetic: leave `main` on a concrete version
-and the next nightly fails, because the derivation requires a snapshot.
+After a release cut from `main`, `.github/actions/pr` opens a PR returning `main` to
+`major.(minor+2).0-SNAPSHOT` — `+2`, because `+1` would land on an odd minor, i.e. the
+pre-release line, and the next nightly would then derive `5.14.<ts>` and collide with the
+`5.14.x` line just released. It fires only when `main` is sitting on the very snapshot the
+release consumed, so a patch cut from a line branch leaves `main` alone. Leaving `main` on
+a concrete version is not cosmetic: the next nightly fails, because that derivation
+requires a snapshot.
 
 A note on `npm version`: the version is always written through it and **read back** from
 `package.json` rather than reusing a composed string, because npm normalizes on write
@@ -110,6 +131,33 @@ version suffix: it is exported into the rush build env, where
 `common-libs/scripts/package-vsix.js` turns it into `vsce package --pre-release`, and
 that flag moves whoever installs the VSIX onto the Marketplace pre-release channel for
 future updates. A nightly is unvetted `main`, not an opt-in supported channel.
+
+## Branches
+
+| Branch | Root version | Created by |
+|---|---|---|
+| `main` | `X.Y.0-SNAPSHOT`, **Y even** | — |
+| `nightly` | `X.(Y-1).<yymmddHHmm>` | the daily build, force-pushed every run |
+| `X.Y.x` — `5.14.x`, `5.16.x` | concrete, never `-SNAPSHOT` | **by hand**, when a line opens |
+| `alpha` | concrete, set by hand | **by hand** |
+| `release/X.Y.Z` | inherited from the branch it was cut from | `release-vsix.yml`, non-pre-release only |
+
+A release dispatched with `isPreRelease: false` commits the packaged version, pushes
+`release/<version>` (reusing it if it already exists), and opens a PR from it into `X.Y.x`.
+The commit matters: `updateVersion` writes the version into the *working tree* during the
+build, so without it the released version would exist in no commit anywhere — and the
+`v<version>` tag is pinned to that commit, not to the dispatched one, so the tagged tree
+carries the version it is named after. **The line branch is never created
+automatically** — deciding when to open a line is a human call — so if it does not exist the
+PR is skipped with a notice naming the branch to cut, rather than failing a release that has
+already been published. Merging that PR triggers `sync-main-with-releases.yml`, which opens
+the PR carrying the line's fixes back to `main`.
+
+Releases from `main` are the only ones that bump anything: see the `+2` rule above.
+
+Nothing here targets `stable/ballerina`. That branch came from `wso2/vscode-extensions`,
+where one repo held several extensions and each needed its own stable trunk
+(`stable/ballerina`, `stable/mi`, `stable/choreo`, …). Here `main` is that trunk.
 
 ## The nightly branch
 
@@ -170,7 +218,7 @@ Configure these in the new repo's settings before triggering anything.
 |---|---|
 | `build` | `build.yml` — runs rush install + `rush build --to ballerina` |
 | `updateVersion` | `build`, `daily-build.yml` — resolves the version from the root `package.json` and propagates it |
-| `release` | `release-vsix.yml` — creates GitHub release with the VSIX; `daily-build.yml` — rolling `nightly` release with the VSIX + LS jar |
-| `pr` | `release-vsix.yml` — opens version-bump PR + Google Chat notification |
+| `release` | `release-vsix.yml` — owns everything that materialises a release: the version commit, `release/<version>`, the tag, the GitHub release and its assets; `daily-build.yml` — rolling `nightly` release with the VSIX + LS jar (no commit, no branch) |
+| `pr` | `release-vsix.yml` — opens the follow-up pull requests (release PR into `X.Y.x`, next-snapshot PR into `main`) + Google Chat notification |
 | `dailyBuildNotification` | `daily-build.yml` — success chat notification |
 | `failure-notification` | `daily-build.yml`, `release-vsix.yml` — failure chat notification |

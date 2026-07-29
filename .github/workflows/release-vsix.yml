@@ -75,12 +75,18 @@ jobs:
         run: |
           file=$(ls ballerina-[0-9]*.[0-9]*.[0-9]*.vsix)
           vsixName=$(basename "$file" .vsix)
-          numericVersion="${vsixName#ballerina-}"
-          echo "version=$vsixName" >> $GITHUB_OUTPUT
-          echo "numericVersion=$numericVersion" >> $GITHUB_OUTPUT
+          echo "numericVersion=${vsixName#ballerina-}" >> $GITHUB_OUTPUT
 
       - name: Initiate release thread
+        env:
+          CHAT_API: ${{ secrets.EDITOR_TEAM_CHAT_API }}
         run: |
+          # Unset on a fork, where this step would otherwise curl a URL that is just the
+          # query string, fail, and take the job down before the release is created.
+          if [ -z "${CHAT_API}" ]; then
+            echo "::notice::EDITOR_TEAM_CHAT_API is not set; skipping the release thread."
+            exit 0
+          fi
           RELEASE_TYPE=${{ inputs.isPreRelease == true && 'Pre-release' || 'Release' }}
           body=$(cat << EOF
           {
@@ -120,7 +126,7 @@ jobs:
           )
           curl -X POST \
             -H 'Content-Type: application/json' \
-            "${{ secrets.EDITOR_TEAM_CHAT_API }}&messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD" \
+            "${CHAT_API}&messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD" \
             -d "$body"
 
       - name: Create a release in ${{ github.repository }} repo
@@ -132,7 +138,13 @@ jobs:
           threadKey: ballerina-release-${{ github.run_id }}
 
       - name: BI Team Release Announcement
+        env:
+          CHAT_API: ${{ secrets.BI_TEAM_CHAT_API }}
         run: |
+          if [ -z "${CHAT_API}" ]; then
+            echo "::notice::BI_TEAM_CHAT_API is not set; skipping the release announcement."
+            exit 0
+          fi
           body=$(cat << EOF
           {
             "cards": [
@@ -170,13 +182,14 @@ jobs:
           )
           curl -X POST \
             -H 'Content-Type: application/json' \
-            "${{ secrets.BI_TEAM_CHAT_API }}" \
+            "${CHAT_API}" \
             -d "$body"
 
+      # No 'version' input: the action reads the released version from the root package.json,
+      # which is what the build packaged. Passing it in meant passing the VSIX basename.
       - name: Create PR and notify
         uses: ./.github/actions/pr
         with:
-          version: ${{ steps.vsix.outputs.version }}
           isPreRelease: ${{ github.event.inputs.isPreRelease }}
           ref_name: ${{ github.ref_name }}
           ballerina: true

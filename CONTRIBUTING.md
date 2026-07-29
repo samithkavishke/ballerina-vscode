@@ -285,8 +285,13 @@ monorepo. If you want them to land here, push them upstream to
 
 ## Branching and release
 
-- `main` — active development
-- `stable/ballerina*` — release branches
+- `main` — active development. Carries `X.Y.0-SNAPSHOT` with an **even** minor.
+- `X.Y.x` — release lines (`5.14.x`, `5.16.x`). Even minors are release lines, odd minors
+  are the pre-release channel. Cut by hand when a line opens; they carry a **concrete**
+  version, never `-SNAPSHOT`.
+- `release/X.Y.Z` — one branch per release, pushed by `release-vsix.yml` and PR'd into its
+  `X.Y.x` line.
+- `alpha` — staging for alpha builds; concrete version, set by hand.
 - `migrate/*` — long-lived migration work
 - `nightly` — **machine-managed, do not touch.** `daily-build.yml` resets it to
   `origin/main` and force-pushes it every night, so it is always `main` plus a single
@@ -294,7 +299,7 @@ monorepo. If you want them to land here, push them upstream to
   committed to it is gone by the next run.
 
 PR → `main` triggers `pull-request.yml` (extension build + tests, LS build if you
-touched LS code). PR → `stable/ballerina` adds the bal E2E suite automatically.
+touched LS code). PR → a `X.Y.x` release line adds the bal E2E suite automatically.
 
 The version lives in the **root `package.json`** — that is the single source of truth —
 and on `main` it always names the *next* release as a snapshot, e.g. `5.14.0-SNAPSHOT`.
@@ -315,13 +320,17 @@ changing the root version.
 `-SNAPSHOT` is never shipped: each publishable build derives a concrete version from it
 (nightlies and pre-releases become `major.(minor-1).<yymmddHHmm>`, so `5.14.0-SNAPSHOT`
 ships nightly as `5.13.2607290130` and releases as `5.14.0`), and the build fails
-outright if the suffix survives to packaging. After a release, the release workflow opens
-a PR returning `main` to the next `-SNAPSHOT` — without it the next nightly cannot derive
-a version. See the Versioning section of `.github/workflows/README.md` for the full table.
+outright if the suffix survives to packaging. Only `main` carries `-SNAPSHOT` — on a
+release line or `alpha` the authored version ships as-is, so bump those by hand between
+releases. After a release cut from `main`, the release workflow opens a PR returning `main`
+to `major.(minor+2).0-SNAPSHOT` (`+2` keeps it on an even minor); without it the next
+nightly cannot derive a version. See the Versioning section of
+`.github/workflows/README.md` for the full table.
 
 Release process is documented at `.github/workflows/README.md`:
-1. **release-vsix** workflow (manual dispatch) — builds, creates GitHub release, opens
-   version-bump PR back to `stable/ballerina`.
+1. **release-vsix** workflow (manual dispatch) — builds, creates the GitHub release, pushes
+   `release/<version>`, and opens the release PR into the `X.Y.x` line (skipped with a
+   notice if that line branch does not exist yet).
 2. **publish-vsix** workflow (manual dispatch) — takes the workflow run ID of the
    release build and publishes the VSIX to VSCode Marketplace + OpenVSX.
 

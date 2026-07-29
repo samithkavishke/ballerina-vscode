@@ -117,7 +117,9 @@ download path and nothing to select. To change the shipped jar, rebuild the LS
 (`rush build --to ballerina-language-server`).
 
 **The version is authored in exactly one file: the root `package.json`.** To change it,
-change that and nothing else. Two files hold a *generated* copy, both written by
+change that and nothing else. On `main` it is `X.Y.0-SNAPSHOT` with an **even** minor (odd
+minors are the pre-release channel); release lines (`5.14.x`) and `alpha` carry a concrete
+version and ship it as-is. Two files hold a *generated* copy, both written by
 `common/scripts/sync-version.js`, which each project chains at the head of its own `build`:
 
 - `packages/ballerina-extension/package.json` (`version`) — read by `vsce`.

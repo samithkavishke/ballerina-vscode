@@ -128,9 +128,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          latest_branch=$(git ls-remote --heads origin | awk -F'/' '/refs\/heads\/1\.[0-9]+\.x$/ { print $NF }' | sort -V | tail -n 1)
+          # Release lines are 'X.Y.x' with an even minor (5.14.x, 5.16.x); odd minors are the
+          # pre-release channel and never get a branch. The pattern was '1.[0-9]+.x' when the
+          # language server versioned itself independently — it now shares the extension's
+          # version, so its lines are the repo's lines.
+          latest_branch=$(git ls-remote --heads origin | awk -F'/' '/refs\/heads\/[0-9]+\.[0-9]+\.x$/ { print $NF }' | sort -V | tail -n 1)
           if [ -z "${latest_branch}" ]; then
-            echo "No 1.x.x release branch found on origin; building from nightly only." >&2
+            echo "No X.Y.x release branch found on origin; building from nightly only." >&2
           fi
 
           timestamp=$(date '+%Y%m%d-%H%M%S')
@@ -158,8 +162,10 @@ jobs:
                 exit 1
               fi
             else
-              # The 1.x.x LS release branches predate the single-source-of-truth change
-              # and still carry their own 'version=' in gradle.properties.
+              # A release line carries a concrete version — only main uses '-SNAPSHOT' — and its
+              # gradle.properties holds the generated copy of it, so reading that file gives the
+              # line's version whether the branch predates the single-source-of-truth change or
+              # not. Suffixed with a timestamp because this is a verification build, not a release.
               branch_version=$(git show "origin/${branch}:packages/ballerina-language-server/gradle.properties" | awk -F= '$1 == "version" { gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); gsub(/\r/, "", $2); print $2; exit }')
               if [ -z "${branch_version}" ]; then
                 echo "Unable to resolve version from gradle.properties for ${branch}" >&2

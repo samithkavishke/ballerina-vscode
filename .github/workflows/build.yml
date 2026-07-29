@@ -150,7 +150,7 @@ jobs:
     needs: Build_Stage
     if: false
     # Re-enable once unit tests are stable in CI:
-    # if: ${{ inputs.runTests || (inputs.isReleaseBuild && inputs.ballerina) || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'stable/ballerina' }}
+    # if: ${{ inputs.runTests || (inputs.isReleaseBuild && inputs.ballerina) || needs.Build_Stage.outputs.runBalExtTests == 'true' || endsWith(github.base_ref, '.x') }}
     timeout-minutes: 45
     runs-on: ${{ inputs.runOnAWS && inputs.awsRunnerId || 'ubuntu-latest' }}
     steps:
