@@ -82,29 +82,42 @@ Its glob is `ballerina-[0-9]*.vsix`, requiring a digit after the dash so it can 
 path downloads it there (`test.list.ts`). `setup.ts` makes the same exclusion.
 
 `.github/actions/updateVersion` is the only place the version is mutated, and the root
-`package.json` is the only file it touches. It applies an optional explicit override, then
-derives the version for the build type.
+`package.json` is the only file it *authors*. It applies an optional explicit override, then
+derives the version for the build type — and finally runs `sync-version.js`, so it also
+rewrites the two generated files above. All three therefore move together in one step, which
+is why the release and nightly commits stage all three paths.
 
 The derivation depends on the *shape* of the root version, not on the branch:
 
 | Build | Root version | Result | Example | `vsce --pre-release` |
 |---|---|---|---|---|
 | PR / local | either | untouched | `5.14.0-SNAPSHOT` (never packaged) | no |
-| Nightly | `-SNAPSHOT` | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290130` | yes |
-| Pre-release (`isPreRelease: true`) | `-SNAPSHOT` | `major.(minor-1).<yymmddHHmm>` | `5.13.2607290145` | yes |
-| Pre-release | concrete | as authored | `5.13.2607290145` | yes |
+| Nightly | `-SNAPSHOT` | `major.(minor-1).<minutes since 2020-01-01 UTC>` | `5.13.3458370` | yes |
+| Pre-release (`isPreRelease: true`) | `-SNAPSHOT` | `major.(minor-1).<minutes since 2020-01-01 UTC>` | `5.13.3458385` | yes |
+| Pre-release | concrete | as authored | `5.13.3458385` | yes |
 | Release | `-SNAPSHOT` | minus `-SNAPSHOT` | `5.14.0` | no |
 | Release | concrete | as authored | `5.14.1` | no |
 
 Nightlies and snapshot-based pre-releases share one derivation
 (`common/scripts/nightly-version.js`), which **decrements the minor** — landing on an odd
 one, the pre-release channel — so the version sorts above every real release of the
-previous line (`5.13.4` < `5.13.2607290130`) and below the release `main` is heading for
-(`5.13.2607290130` < `5.14.0`). Publishing either as `5.14.x` would make it outrank the
-eventual `5.14.0` and VS Code would never update off it. The timestamp is
-minute-granular so a nightly and a pre-release cut on the same day cannot collide, and it
-goes in the *patch* position because VS Code extension versions must be three integers —
-`5.14.0-alpha.1` is not available.
+previous line (`5.13.4` < `5.13.3458370`) and below the release `main` is heading for
+(`5.13.3458370` < `5.14.0`). Publishing either as `5.14.x` would make it outrank the
+eventual `5.14.0` and VS Code would never update off it. It goes in the *patch* position
+because VS Code extension versions must be three integers — `5.14.0-alpha.1` is not
+available.
+
+The stamp is **whole minutes since 2020-01-01 UTC**, not a readable `yymmddHHmm`, because
+Marketplace version components are `int32` (max `2147483647`) and a `yymmddHHmm` stamp
+passes that from 2022 onward — `2607291530` is `2,607,291,530`, so `vsce publish` would
+reject every pre-release. Minutes-since-epoch is 7 digits, stays under the limit until the
+year 6098, and is still monotonic. Two builds collide only if cut within the same minute.
+`nightly-version.js` rejects a stamp over the limit rather than letting it fail at publish
+time, long after the release is tagged. Decode one with:
+
+```bash
+node -e 'console.log(new Date(Date.UTC(2020,0,1) + <stamp>*60000).toISOString())'
+```
 
 The script hard-fails on a root version that is not `major.minor.patch-SNAPSHOT`, and on a
 minor of `0` (there is no `minor - 1` to publish under; a new major line needs a human
@@ -139,7 +152,7 @@ affect the nightly's version, which is already committed on the `nightly` branch
 | Branch | Root version | Created by |
 |---|---|---|
 | `main` | `X.Y.0-SNAPSHOT`, **Y even** | — |
-| `nightly` | `X.(Y-1).<yymmddHHmm>` | the daily build, force-pushed every run |
+| `nightly` | `X.(Y-1).<minutes since 2020-01-01 UTC>` | the daily build, force-pushed every run |
 | `X.Y.x` — `5.14.x`, `5.16.x` | concrete, never `-SNAPSHOT` | **by hand**, when a line opens |
 | `alpha` | concrete, set by hand | **by hand** |
 | `release/X.Y.Z` | inherited from the branch it was cut from | `release-vsix.yml`, non-pre-release only |

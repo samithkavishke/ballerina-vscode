@@ -7,23 +7,35 @@
  * (e.g. 5.14.0-SNAPSHOT). A nightly is unreleased work heading toward that version,
  * so it is published as:
  *
- *     major.(minor - 1).<yymmddHHmm>     5.14.0-SNAPSHOT -> 5.13.2607290130
+ *     major.(minor - 1).<minutes since 2020-01-01 UTC>    5.14.0-SNAPSHOT -> 5.13.3458370
  *
  * The minor is decremented so a nightly sorts *above* every real release of the
- * previous line (5.13.4 < 5.13.2607290130) and *below* the release main is heading
- * for (5.13.2607290130 < 5.14.0). Publishing it as 5.14.x instead would make the
+ * previous line (5.13.4 < 5.13.3458370) and *below* the release main is heading
+ * for (5.13.3458370 < 5.14.0). Publishing it as 5.14.x instead would make the
  * nightly outrank the eventual 5.14.0 release, and VS Code would never update off
  * it. The timestamp lands in the patch position rather than being appended so the
  * result is a plain three-part version, with no leading-zero semver trap.
  *
- * Pre-releases use this same derivation. The timestamp is minute-granular so a
- * nightly and a pre-release cut on the same day can never collide on a version.
+ * WHY MINUTES-SINCE-EPOCH AND NOT A READABLE 'yymmddHHmm':
+ * VS Code Marketplace version components are int32, max 2147483647. A yymmddHHmm
+ * stamp is 2607291530 for this very date — over the limit — and every value the
+ * scheme can produce from 2022 onward exceeds it, so 'vsce publish' would reject
+ * every pre-release. Minutes since 2020-01-01 is 7 digits (~3.4M), three orders of
+ * magnitude clear of the limit, still monotonic and still minute-granular. It stays
+ * under int32 until the year 6099, which is long enough.
  *
- * Usage: node common/scripts/nightly-version.js [--timestamp yymmddHHmm]
+ * Decode one with:
+ *     node -e 'console.log(new Date(Date.UTC(2020,0,1) + <stamp>*60000).toISOString())'
+ *
+ * Pre-releases use this same derivation. The stamp is minute-granular, so a nightly
+ * and a pre-release collide only if they are cut within the same minute.
+ *
+ * Usage: node common/scripts/nightly-version.js [--timestamp <minutes>]
  *
  * Exit codes:
  * - 0: version printed on stdout
- * - 1: the root version is not a 'major.minor.patch-SNAPSHOT' with a decrementable minor
+ * - 1: the root version is not a 'major.minor.patch-SNAPSHOT' with a decrementable minor,
+ *      or the stamp is not a positive integer below int32
  */
 
 const fs = require('fs');
@@ -32,16 +44,18 @@ const path = require('path');
 const REPO_ROOT = path.join(__dirname, '..', '..');
 const SNAPSHOT_VERSION = /^(\d+)\.(\d+)\.\d+-SNAPSHOT$/;
 
-/** yymmddHHmm in UTC — CI runners are UTC, so this matches `date '+%y%m%d%H%M'` there. */
+/** Version components must fit in a signed 32-bit int or the Marketplace rejects them. */
+const MAX_VERSION_COMPONENT = 2147483647;
+
+/** Epoch for the patch stamp. Fixed forever — moving it would renumber every nightly. */
+const STAMP_EPOCH_UTC = Date.UTC(2020, 0, 1);
+
+/**
+ * Whole minutes since 2020-01-01 UTC. Mirrors the shell in updateVersion/action.yml,
+ * which computes the same value from `date -u +%s` — the two must agree.
+ */
 function timestamp(now) {
-  const pad = (n) => String(n).padStart(2, '0');
-  return [
-    pad(now.getUTCFullYear() % 100),
-    pad(now.getUTCMonth() + 1),
-    pad(now.getUTCDate()),
-    pad(now.getUTCHours()),
-    pad(now.getUTCMinutes()),
-  ].join('');
+  return String(Math.floor((now.getTime() - STAMP_EPOCH_UTC) / 60000));
 }
 
 function deriveNightlyVersion(rootVersion, stamp) {
@@ -51,7 +65,7 @@ function deriveNightlyVersion(rootVersion, stamp) {
       `The root package.json version is "${rootVersion}", which is not a snapshot.\n` +
       `main must always carry the next release as 'major.minor.patch-SNAPSHOT' ` +
       `(e.g. 5.14.0-SNAPSHOT); the nightly version is derived from it as ` +
-      `major.(minor-1).<yymmddHH>.`
+      `major.(minor-1).<minutes since 2020-01-01 UTC>.`
     );
   }
 
@@ -79,7 +93,20 @@ function main() {
   const stamp = flagIndex !== -1 ? args[flagIndex + 1] : timestamp(new Date());
 
   if (!/^\d+$/.test(stamp || '')) {
-    console.error(`Invalid --timestamp "${stamp}": expected digits (yymmddHHmm).`);
+    console.error(
+      `Invalid --timestamp "${stamp}": expected digits (minutes since 2020-01-01 UTC).`
+    );
+    process.exit(1);
+  }
+
+  // Checked here rather than trusted, because the caller passes the stamp in: a value
+  // over the limit packages fine and only fails at 'vsce publish', long after the
+  // release has been tagged.
+  if (Number(stamp) > MAX_VERSION_COMPONENT) {
+    console.error(
+      `Invalid --timestamp "${stamp}": exceeds the maximum version component ` +
+      `${MAX_VERSION_COMPONENT} (int32), which the VS Code Marketplace rejects.`
+    );
     process.exit(1);
   }
 
@@ -99,4 +126,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { deriveNightlyVersion, timestamp };
+module.exports = { deriveNightlyVersion, timestamp, MAX_VERSION_COMPONENT };

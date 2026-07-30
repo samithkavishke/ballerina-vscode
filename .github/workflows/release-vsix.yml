@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       isPreRelease:
-        description: 'Pre-release: version becomes major.(minor-1).<yymmddHHmm> and the VSIX is packaged with --pre-release. Unchecked = a real release at the root version minus -SNAPSHOT'
+        description: 'Pre-release: version becomes major.(minor-1).<minutes since 2020-01-01 UTC> and the VSIX is packaged with --pre-release. Unchecked = a real release at the root version minus -SNAPSHOT'
         required: true
         type: boolean
         default: true

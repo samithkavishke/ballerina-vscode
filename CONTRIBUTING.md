@@ -230,9 +230,16 @@ The extension reads its LS jar from `packages/ballerina-extension/ls/*.jar`. Tha
 isn't one. There is no download fallback and no way to point it at a different LS.
 
 The LS has **no independent version** — `version=` in `gradle.properties` is generated from
-the root `package.json` by the sync step at the head of its build, so
-`ls/ballerina-language-server-<v>.jar` and the `ballerina-<v>.vsix` around it always carry
-the same `<v>`, locally as well as in CI.
+the root `package.json` by the sync step at the head of its build, so a full build through
+rush produces an `ls/ballerina-language-server-<v>.jar` and a `ballerina-<v>.vsix` carrying
+the same `<v>`.
+
+One local caveat: `copy-ls.js` picks the **newest jar by mtime**, not the one whose filename
+matches the version being built. So if you bump the root version and package the extension
+without rebuilding the LS, the newest jar in `build/` is still the old one and it gets
+bundled under a VSIX naming a different version. CI never hits this — it builds the LS from
+scratch every run — but locally, rebuild the LS (below) after moving the root version rather
+than only re-running the extension build.
 
 Building the extension therefore requires being able to build the LS: JDK 21 and
 GitHub Packages credentials (`packageUser` / `packagePAT` in `~/.gradle/gradle.properties`).
@@ -318,8 +325,8 @@ rush/pnpm: a bare `./gradlew pack` uses whatever `gradle.properties` holds, so r
 changing the root version.
 
 `-SNAPSHOT` is never shipped: each publishable build derives a concrete version from it
-(nightlies and pre-releases become `major.(minor-1).<yymmddHHmm>`, so `5.14.0-SNAPSHOT`
-ships nightly as `5.13.2607290130` and releases as `5.14.0`), and the build fails
+(nightlies and pre-releases become `major.(minor-1).<minutes since 2020-01-01 UTC>`, so `5.14.0-SNAPSHOT`
+ships nightly as `5.13.3458370` and releases as `5.14.0`), and the build fails
 outright if the suffix survives to packaging. Only `main` carries `-SNAPSHOT` — on a
 release line or `alpha` the authored version ships as-is, so bump those by hand between
 releases. After a release cut from `main`, the release workflow opens a PR returning `main`

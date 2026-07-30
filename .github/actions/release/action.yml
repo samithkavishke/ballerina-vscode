@@ -30,6 +30,15 @@ inputs:
       fails the job — a silently missing asset is worse than a red build.
     required: false
     default: ''
+  commit:
+    description: >-
+      The commit the release and its tag should point at. Defaults to the commit the
+      workflow is running on. The daily build must pass the sync-nightly commit: its
+      job runs on main, so the default would tag main's head — a tree without the
+      version bump the VSIX was actually built from. Ignored when releaseBranch is
+      true, where the version commit made below is the correct target.
+    required: false
+    default: ''
   prerelease:
     description: >-
       Mark the GitHub release as a pre-release. Defaults to true, which is correct
@@ -178,10 +187,16 @@ runs:
         VSIX: ${{ steps.vsix.outputs.vsixName }}
         EXTRA_ASSETS: ${{ inputs.extraAssets }}
         ROLLING: ${{ inputs.tag != '' }}
-        # The commit the release tag points at: the version commit when a release branch was
-        # pushed, otherwise the commit the workflow itself is running on (pre-releases, and the
-        # rolling nightly, whose version commit is already on the nightly branch).
-        TARGET_COMMIT: ${{ steps.release_branch.outputs.sha || github.sha }}
+        # The commit the release and its tag point at, most specific first: the version
+        # commit when a release branch was pushed, then an explicit 'commit' input (the
+        # daily build passes the sync-nightly commit the VSIX was built from), and only
+        # then the commit the workflow is running on.
+        #
+        # The last of those is wrong for the nightly — that job runs on main, so it would
+        # tag main's head, a tree with no version bump in it. The nightly commit exists
+        # precisely so a nightly VSIX is traceable to one, which the release has to
+        # reference for that to be worth anything.
+        TARGET_COMMIT: ${{ steps.release_branch.outputs.sha || inputs.commit || github.sha }}
         PRERELEASE: ${{ inputs.prerelease }}
       run: |
         set -euo pipefail
@@ -336,6 +351,10 @@ runs:
             echo "${releasePatch}" >&2
             exit 1
           fi
+          # Moves to TARGET_COMMIT, the same commit the release was created against —
+          # not GITHUB_SHA, which for the nightly is main's head rather than the
+          # version commit the VSIX came from.
+          #
           # Compare the returned ref target rather than just checking for a body:
           # a rejected ref update (missing ref, concurrent move) would otherwise
           # leave ${TAG} on a stale commit while the release serves the new VSIX.
@@ -343,14 +362,14 @@ runs:
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization:token ${GH_TOKEN}" \
             "${API}/git/refs/tags/${TAG}" \
-            -d "$(jq -n --arg sha "${GITHUB_SHA}" \
+            -d "$(jq -n --arg sha "${TARGET_COMMIT}" \
               '{sha: $sha, force: true}')")
-          if [ "$(echo "${refPatch}" | jq -r '.object.sha // empty')" != "${GITHUB_SHA}" ]; then
-            echo "Failed to move tag ${TAG} to ${GITHUB_SHA}:" >&2
+          if [ "$(echo "${refPatch}" | jq -r '.object.sha // empty')" != "${TARGET_COMMIT}" ]; then
+            echo "Failed to move tag ${TAG} to ${TARGET_COMMIT}:" >&2
             echo "${refPatch}" >&2
             exit 1
           fi
-          echo "Moved tag ${TAG} to ${GITHUB_SHA}"
+          echo "Moved tag ${TAG} to ${TARGET_COMMIT}"
         fi
 
     - name: "Release Notification"

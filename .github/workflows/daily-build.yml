@@ -42,7 +42,7 @@ jobs:
   #
   # The version is derived from the root package.json — the single source of truth,
   # which on main always reads 'major.minor.patch-SNAPSHOT' — as
-  # major.(minor-1).<yymmddHHmm>, e.g. 5.14.0-SNAPSHOT -> 5.13.2607290130. It is
+  # major.(minor-1).<minutes since 2020-01-01 UTC>, e.g. 5.14.0-SNAPSHOT -> 5.13.3458370. It is
   # propagated by sync-version.js to the extension's package.json and the language
   # server's gradle.properties, so the extension and the bundled LS always report the
   # same version. See common/scripts/nightly-version.js.
@@ -410,6 +410,9 @@ jobs:
   Release:
     name: Publish daily pre-release
     needs:
+      # sync-nightly is needed for its commit SHA, not for ordering — the other jobs
+      # already depend on it transitively.
+      - sync-nightly
       - ls-ubuntu-pack
       - ls-ubuntu-test
       - ls-windows-build
@@ -443,6 +446,10 @@ jobs:
           # place and moves the tag, so the download URL never changes and always
           # serves the latest build.
           tag: nightly
+          # The commit the VSIX was built from. This job runs on main, so without it the
+          # release would tag main's head — a tree that does not carry the nightly
+          # version — and the nightly commit would be unreachable from the release.
+          commit: ${{ needs.sync-nightly.outputs.sha }}
           # Attach the bundled language server too, so it is downloadable on its own
           # (debugging a nightly LS regression, or pointing an existing install at it
           # via the ballerina.langServerPath setting). This is the exact jar inside
