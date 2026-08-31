@@ -122,18 +122,22 @@ public class PropertyType {
             List<Option> options = new ArrayList<>();
             boolean allSingletons = true;
             for (TypeSymbol symbol : typeSymbols) {
-                if (CommonUtil.getRawType(symbol).typeKind() == TypeDescKind.SINGLETON) {
-                    String label = CommonUtils.removeQuotes(symbol.signature());
-                    Option option = new Option(label, symbol.signature());
-                    options.add(option);
-                } else {
+                TypeDescKind memberKind = CommonUtil.getRawType(symbol).typeKind();
+                if (isBasicType(memberKind)) {
+                    // A basic member is not an option of its own, so a union that widens an enum with one
+                    // still resolves to a single-select over the singletons it does declare.
+                    continue;
+                }
+                if (memberKind != TypeDescKind.SINGLETON) {
                     allSingletons = false;
                     break;
                 }
+                String label = CommonUtils.removeQuotes(symbol.signature());
+                options.add(new Option(label, symbol.signature()));
             }
 
             // If all the member types are singletons, treat it as a single-select option
-            if (allSingletons) {
+            if (allSingletons && !options.isEmpty()) {
                 PropertyType propType = new Builder()
                         .fieldType(Value.FieldType.SINGLE_SELECT)
                         .options(options)
@@ -237,6 +241,21 @@ public class PropertyType {
             }
         }
         valueBuilder.types(propertyTypes);
+    }
+
+    /**
+     * Checks whether the given type kind is a basic type. A basic member of a union is not an option of
+     * its own, so it is skipped when deciding whether the union is a single-select over singletons.
+     *
+     * @param typeKind the kind to check
+     * @return true if the kind is a basic type
+     */
+    private static boolean isBasicType(TypeDescKind typeKind) {
+        return switch (typeKind) {
+            case NIL, BOOLEAN, INT, INT_SIGNED8, INT_UNSIGNED8, INT_SIGNED16, INT_UNSIGNED16, INT_SIGNED32,
+                 INT_UNSIGNED32, BYTE, FLOAT, DECIMAL, STRING, STRING_CHAR, REGEXP, XML -> true;
+            default -> false;
+        };
     }
 
     private static boolean handlePrimitiveType(TypeSymbol typeSymbol, String ballerinaType,
