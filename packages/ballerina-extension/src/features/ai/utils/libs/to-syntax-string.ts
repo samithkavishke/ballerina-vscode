@@ -141,6 +141,14 @@ function deriveCamelCasePrefix(libraryName: string): string {
  * unchanged.
  */
 function assignModulePrefixes(links: { recordName: string; libraryName: string }[]): ExternalLinkInfo[] {
+    if (documentPrefixes) {
+        // A document-wide allocation is in effect, so the answer is already decided; see `allocateForDocument`.
+        // Falling back to a local allocation for a library the pre-pass somehow missed keeps this total.
+        const resolved = links.map((link) => ({ ...link, modulePrefix: documentPrefixes!.get(link.libraryName) }));
+        if (resolved.every((link) => link.modulePrefix !== undefined)) {
+            return resolved as ExternalLinkInfo[];
+        }
+    }
     const prefixByLibrary = new Map<string, string>();
     const taken = new Set<string>();
     for (const { libraryName } of links) {
@@ -160,6 +168,64 @@ function assignModulePrefixes(links: { recordName: string; libraryName: string }
         prefixByLibrary.set(libraryName, prefix);
     }
     return links.map((link) => ({ ...link, modulePrefix: prefixByLibrary.get(link.libraryName)! }));
+}
+
+/**
+ * Prefix per library for the document currently being rendered, or `null` outside a render.
+ *
+ * Allocating per signature made one library `drive` in `foo()` and `aiGoogleDrive` in `bar()` a few lines
+ * apart, because each signature started with an empty `taken` set and first-come kept the natural prefix.
+ * Every line was correct alone, but the reader writes ONE file with ONE import block and cannot bind `drive`
+ * to two modules -- and the alias hint on one note then contradicts the bare prefix on the next.
+ *
+ * The language server anchors this on the target file, whose existing imports carry the decision between
+ * requests. There is no such file here, so the document itself is the unit: it is generated in one
+ * synchronous pass, so every library it will mention is known before the first line is emitted.
+ */
+let documentPrefixes: Map<string, string> | null = null;
+
+/**
+ * Every external link anywhere in `value`, found by shape rather than by walking the schema, so a link on a
+ * type reachable by a path this file does not render explicitly still gets a prefix.
+ */
+function collectLinksDeep(value: unknown, found: { recordName: string; libraryName: string }[],
+                          seen: Set<object>): void {
+    if (value === null || typeof value !== "object") {
+        return;
+    }
+    if (seen.has(value)) {
+        return;
+    }
+    seen.add(value);
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            collectLinksDeep(item, found, seen);
+        }
+        return;
+    }
+    const record = value as Record<string, unknown>;
+    if (record.category === "external" && typeof record.libraryName === "string"
+        && typeof record.recordName === "string") {
+        found.push({ recordName: record.recordName, libraryName: record.libraryName });
+    }
+    for (const nested of Object.values(record)) {
+        collectLinksDeep(nested, found, seen);
+    }
+}
+
+/**
+ * Allocates one prefix per library across every library being rendered together. The unit is the whole
+ * document, not one library: the reader writes a single file importing from all of them, so two libraries in
+ * one call collide with each other exactly as two records in one signature do.
+ */
+function allocateForDocument(libraries: Library[]): Map<string, string> {
+    const found: { recordName: string; libraryName: string }[] = [];
+    collectLinksDeep(libraries, found, new Set<object>());
+    const prefixes = new Map<string, string>();
+    for (const link of assignModulePrefixes(found)) {
+        prefixes.set(link.libraryName, link.modulePrefix);
+    }
+    return prefixes;
 }
 
 interface ExternalLinkInfo {
@@ -190,10 +256,38 @@ function collectExternalLinks(type: Type): ExternalLinkInfo[] {
 function applyPrefixToTypeName(typeName: string, externalLinks: ExternalLinkInfo[]): string {
     let result = typeName;
     for (const link of externalLinks) {
-        const regex = new RegExp(`\\b${escapeRegExp(link.recordName)}\\b`, "g");
+        // The lookbehind rejects a name that already carries a qualifier. Two links can name the same record
+        // in two libraries, and without it the second pass matches inside the first one's output --
+        // `File` -> `drive:File` -> `drive:aiGoogleDrive:File`. It also leaves an already-prefixed name that
+        // arrived that way (`http:Headers`) alone, which is the same rule `qualifyDeclaredType` follows.
+        const regex = new RegExp(`(?<![\\w.:])${escapeRegExp(link.recordName)}\\b`, "g");
         result = result.replace(regex, `${link.modulePrefix}:${link.recordName}`);
     }
     return result;
+}
+
+/**
+ * The subset of a merged link set that `type` actually names.
+ *
+ * Prefixes have to be allocated across a whole signature or record so that one library gets one qualifier
+ * everywhere, but the *replacement* must stay per-type: run the merged set over every type and a link
+ * belonging to some other parameter still rewrites this one's name whenever the two share a record name.
+ */
+function ownLinks(type: Type | undefined, allLinks: ExternalLinkInfo[]): ExternalLinkInfo[] {
+    if (!type?.links) {
+        return [];
+    }
+    const own = new Set(
+        type.links
+            .filter((link) => link.category === "external" && !!link.libraryName)
+            .map((link) => `${link.recordName}::${link.libraryName}`)
+    );
+    return allLinks.filter((link) => own.has(`${link.recordName}::${link.libraryName}`));
+}
+
+/** Qualifies `type` using only its own links, with the prefixes allocated across `allLinks`. */
+function qualifyWithin(type: Type, allLinks: ExternalLinkInfo[]): string {
+    return applyPrefixToTypeName(type.name, ownLinks(type, allLinks));
 }
 
 function escapeRegExp(str: string): string {
@@ -270,9 +364,16 @@ function buildSpecialAgentNote(externalLinks: ExternalLinkInfo[]): string {
         grouped.get(link.libraryName)!.push(link.recordName);
     }
 
+    const prefixByLibrary = new Map(externalLinks.map((link) => [link.libraryName, link.modulePrefix]));
     const parts: string[] = [];
     for (const [libName, recordNames] of grouped) {
-        parts.push(`${recordNames.join(", ")} FROM ${libName} package`);
+        // The note is the only channel this output has to the model -- it never reaches the language server,
+        // so nothing downstream re-resolves the qualifier. When a collision pushed a library off its natural
+        // prefix, the model would otherwise follow the system prompt's "alias by the last dot-segment" rule
+        // and write an import that leaves our qualifier unbound. Spell the alias out.
+        const prefix = prefixByLibrary.get(libName);
+        const aliasHint = prefix && prefix !== deriveModulePrefix(libName) ? ` (import as ${prefix})` : "";
+        parts.push(`${recordNames.join(", ")} FROM ${libName} package${aliasHint}`);
     }
 
     return ` // Special Agent Note: ${parts.join(", ")}`;
@@ -344,8 +445,13 @@ function renderRecord(typeDef: RecordTypeDefinition): string {
     lines.push(...renderAttachmentLines(typeDef.annotations, ""));
     lines.push(`type ${typeDef.name} record {`);
 
+    // Allocated over every field at once, for the same reason a function signature is: collecting per field
+    // gives each its own empty `taken` set, so two libraries ending in the same segment would both keep it
+    // and one qualifier in the rendered record would stand for two modules.
+    const recordLinks = mergeExternalLinks(typeDef.fields.map((field) => field.type));
+
     for (const field of typeDef.fields) {
-        const externalLinks = collectExternalLinks(field.type);
+        const externalLinks = ownLinks(field.type, recordLinks);
         const typeName = applyPrefixToTypeName(field.type.name, externalLinks);
         const optional = field.optional ? "?" : "";
         const defaultVal = field.default !== undefined ? ` = ${field.default}` : "";
@@ -476,15 +582,15 @@ function renderTypeDef(typeDef: TypeDefinition): string {
 }
 
 /**
- * Collects all external links from parameters and return type.
+ * Allocates one qualifier per library across a group of types that are rendered together, so a library
+ * cannot be `drive` on one member and `aiGoogleDrive` on the next.
  */
-function collectFunctionExternalLinks(params: Parameter[], returnType?: Type): ExternalLinkInfo[] {
+function mergeExternalLinks(types: (Type | undefined)[]): ExternalLinkInfo[] {
     const links: ExternalLinkInfo[] = [];
-    for (const param of params) {
-        links.push(...collectExternalLinks(param.type));
-    }
-    if (returnType) {
-        links.push(...collectExternalLinks(returnType));
+    for (const type of types) {
+        if (type) {
+            links.push(...collectExternalLinks(type));
+        }
     }
     // Deduplicate by recordName + libraryName
     const seen = new Set<string>();
@@ -502,6 +608,13 @@ function collectFunctionExternalLinks(params: Parameter[], returnType?: Type): E
 }
 
 /**
+ * Collects all external links from parameters and return type.
+ */
+function collectFunctionExternalLinks(params: Parameter[], returnType?: Type): ExternalLinkInfo[] {
+    return mergeExternalLinks([...params.map((param) => param.type), returnType]);
+}
+
+/**
  * Renders a parameter (for functions).
  *
  * `externalLinks` must be the whole signature's, from {@link collectFunctionExternalLinks}. Collecting them
@@ -510,7 +623,7 @@ function collectFunctionExternalLinks(params: Parameter[], returnType?: Type): E
  * the parameters about which module the one qualifier stands for.
  */
 function renderParam(param: Parameter, externalLinks: ExternalLinkInfo[]): string {
-    const typeName = applyPrefixToTypeName(param.type.name, externalLinks);
+    const typeName = qualifyWithin(param.type, externalLinks);
     // A function or client parameter's default is the compiler's real default, so it is rendered whenever one
     // exists. This is deliberately NOT the listener-argument rule in `renderFixedService`, where a default is
     // emitted only for an optional parameter — a listener's "default" may be a type-derived placeholder for a
@@ -526,7 +639,7 @@ function renderParam(param: Parameter, externalLinks: ExternalLinkInfo[]): strin
 function renderConstructor(func: RemoteFunction): string {
     const allExternalLinks = collectFunctionExternalLinks(func.parameters, func.return?.type);
     const params = func.parameters.map((param) => renderParam(param, allExternalLinks)).join(", ");
-    const returnStr = func.return?.type ? ` returns ${applyPrefixToTypeName(func.return.type.name, allExternalLinks)}` : "";
+    const returnStr = func.return?.type ? ` returns ${qualifyWithin(func.return.type, allExternalLinks)}` : "";
     const agentNote = buildSpecialAgentNote(allExternalLinks);
     const anns = renderAttachmentBlock(func.annotations, "    ");
     return `${anns}    function init(${params})${returnStr};${agentNote}`;
@@ -542,7 +655,7 @@ function renderMethod(func: RemoteFunction, qualifier: string, indent: string): 
     const dep = func.isDeprecated ? `${indent}@deprecated\n` : "";
     const anns = renderAttachmentBlock(func.annotations, indent);
     const params = func.parameters.map((param) => renderParam(param, allExternalLinks)).join(", ");
-    const returnStr = func.return?.type ? ` returns ${applyPrefixToTypeName(func.return.type.name, allExternalLinks)}` : "";
+    const returnStr = func.return?.type ? ` returns ${qualifyWithin(func.return.type, allExternalLinks)}` : "";
     const agentNote = buildSpecialAgentNote(allExternalLinks);
     return `${desc}${dep}${anns}${indent}${qualifier}function ${func.name}(${params})${returnStr};${agentNote}`;
 }
@@ -613,7 +726,7 @@ function renderResourceFunction(func: ResourceFunction, indent: string = "    ")
     const nonPathParams = func.parameters.filter((p) => !pathParamNames.has(p.name));
     const params = nonPathParams.map((param) => renderParam(param, allExternalLinks)).join(", ");
 
-    const returnStr = func.return?.type ? ` returns ${applyPrefixToTypeName(func.return.type.name, allExternalLinks)}` : "";
+    const returnStr = func.return?.type ? ` returns ${qualifyWithin(func.return.type, allExternalLinks)}` : "";
     const agentNote = buildSpecialAgentNote(allExternalLinks);
     return `${desc}${dep}${anns}${indent}resource function ${func.accessor} ${pathStr}(${params})${returnStr};${agentNote}`;
 }
@@ -669,7 +782,7 @@ function renderStandaloneFunction(func: RemoteFunction): string {
     lines.push(...renderAttachmentLines(func.annotations, ""));
 
     const params = func.parameters.map((param) => renderParam(param, allExternalLinks)).join(", ");
-    const returnStr = func.return?.type ? ` returns ${applyPrefixToTypeName(func.return.type.name, allExternalLinks)}` : "";
+    const returnStr = func.return?.type ? ` returns ${qualifyWithin(func.return.type, allExternalLinks)}` : "";
     const agentNote = buildSpecialAgentNote(allExternalLinks);
     lines.push(`function ${func.name}(${params})${returnStr};${agentNote}`);
 
@@ -2523,6 +2636,16 @@ function renderService(service: Service): string {
 export function toSyntaxString(libraries: Library[]): string {
     const output: string[] = [];
 
+    // Decided up front and cleared in `finally`, so a throw cannot leak one document's prefixes into the next.
+    documentPrefixes = allocateForDocument(libraries);
+    try {
+        return renderLibraries(libraries, output);
+    } finally {
+        documentPrefixes = null;
+    }
+}
+
+function renderLibraries(libraries: Library[], output: string[]): string {
     for (const lib of libraries) {
         // Library header
         output.push(`// ============================================================`);
