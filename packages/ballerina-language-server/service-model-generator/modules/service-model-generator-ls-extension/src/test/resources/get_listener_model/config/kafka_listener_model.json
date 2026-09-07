@@ -494,12 +494,12 @@
               "ballerinaType": "kafka:DeserializerType",
               "options": [
                 {
-                  "label": "DES_AVRO",
-                  "value": "\"DES_AVRO\""
-                },
-                {
                   "label": "DES_BYTE_ARRAY",
                   "value": "\"DES_BYTE_ARRAY\""
+                },
+                {
+                  "label": "DES_AVRO",
+                  "value": "\"DES_AVRO\""
                 }
               ],
               "selected": true
@@ -532,12 +532,12 @@
               "ballerinaType": "kafka:DeserializerType",
               "options": [
                 {
-                  "label": "DES_AVRO",
-                  "value": "\"DES_AVRO\""
-                },
-                {
                   "label": "DES_BYTE_ARRAY",
                   "value": "\"DES_BYTE_ARRAY\""
+                },
+                {
+                  "label": "DES_AVRO",
+                  "value": "\"DES_AVRO\""
                 }
               ],
               "selected": true

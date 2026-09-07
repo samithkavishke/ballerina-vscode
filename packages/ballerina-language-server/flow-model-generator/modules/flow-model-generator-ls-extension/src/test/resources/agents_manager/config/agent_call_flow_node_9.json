@@ -344,7 +344,7 @@
                 "selected": false
               }
             ],
-            "placeholder": "\"LLM_FILTER\"",
+            "placeholder": "\"NO_FILTER\"",
             "optional": true,
             "editable": true,
             "advanced": true,

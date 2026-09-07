@@ -273,12 +273,12 @@
               "fieldType": "SINGLE_SELECT",
               "options": [
                 {
-                  "label": "LLM_FILTER",
-                  "value": "\"LLM_FILTER\""
-                },
-                {
                   "label": "NO_FILTER",
                   "value": "\"NO_FILTER\""
+                },
+                {
+                  "label": "LLM_FILTER",
+                  "value": "\"LLM_FILTER\""
                 }
               ],
               "selected": false

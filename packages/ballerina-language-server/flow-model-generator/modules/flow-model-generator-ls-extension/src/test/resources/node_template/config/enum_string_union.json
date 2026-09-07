@@ -44,28 +44,28 @@
                 "value": "\"Monday\""
               },
               {
-                "label": "Sunday",
-                "value": "\"Sunday\""
-              },
-              {
-                "label": "Saturday",
-                "value": "\"Saturday\""
-              },
-              {
-                "label": "Friday",
-                "value": "\"Friday\""
-              },
-              {
-                "label": "Thursday",
-                "value": "\"Thursday\""
+                "label": "Tuesday",
+                "value": "\"Tuesday\""
               },
               {
                 "label": "Wednesday",
                 "value": "\"Wednesday\""
               },
               {
-                "label": "Tuesday",
-                "value": "\"Tuesday\""
+                "label": "Thursday",
+                "value": "\"Thursday\""
+              },
+              {
+                "label": "Friday",
+                "value": "\"Friday\""
+              },
+              {
+                "label": "Saturday",
+                "value": "\"Saturday\""
+              },
+              {
+                "label": "Sunday",
+                "value": "\"Sunday\""
               }
             ],
             "selected": false
@@ -81,7 +81,7 @@
             "selected": false
           }
         ],
-        "placeholder": "\"Sunday\"",
+        "placeholder": "\"Monday\"",
         "optional": true,
         "editable": true,
         "advanced": true,

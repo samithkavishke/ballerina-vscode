@@ -30,8 +30,11 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
@@ -47,10 +50,12 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents the type configuration of a property in the flow model.
@@ -119,14 +124,27 @@ public class PropertyType {
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
         // Handle union of singleton types as single-select options
         if (!success && rawType instanceof UnionTypeSymbol unionTypeSymbol) {
-            List<TypeSymbol> typeSymbols = unionTypeSymbol.memberTypeDescriptors();
             List<Option> options = new ArrayList<>();
             List<TypeSymbol> otherTypes = new ArrayList<>();
-            for (TypeSymbol symbol : typeSymbols) {
+
+            // A union flattens its enum members into their singletons, hence the enums are resolved from the user
+            // specified members before the singletons are collected below.
+            Set<String> enumMemberTypes = new HashSet<>();
+            List<TypeSymbol> unionMembers = getEnumSymbol(typeSymbol).isPresent() ? List.of(typeSymbol)
+                    : unionTypeSymbol.userSpecifiedMemberTypes();
+            for (TypeSymbol member : unionMembers) {
+                getEnumSymbol(member).ifPresent(enumSymbol ->
+                        addEnumOptions(enumSymbol, options, enumMemberTypes));
+            }
+
+            for (TypeSymbol symbol : unionTypeSymbol.memberTypeDescriptors()) {
                 TypeDescKind memberTypeKind = CommonUtil.getRawType(symbol).typeKind();
                 if (memberTypeKind == TypeDescKind.SINGLETON) {
-                    String label = CommonUtils.removeQuotes(symbol.signature());
-                    options.add(new Option(label, symbol.signature()));
+                    // Skip the singletons that are already covered by the options of an enum
+                    if (!enumMemberTypes.contains(symbol.signature())) {
+                        String label = CommonUtils.removeQuotes(symbol.signature());
+                        options.add(new Option(label, symbol.signature()));
+                    }
                 } else if (memberTypeKind != TypeDescKind.NIL) {
                     // The nil member is conveyed by the `optional` flag of the property
                     otherTypes.add(symbol);
@@ -242,6 +260,38 @@ public class PropertyType {
             }
         }
         valueBuilder.types(propertyTypes);
+    }
+
+    /**
+     * Returns the enum definition the given type refers to, if any.
+     *
+     * @param typeSymbol the type to resolve
+     * @return the enum definition, or empty if the type does not refer to an enum
+     */
+    private static Optional<EnumSymbol> getEnumSymbol(TypeSymbol typeSymbol) {
+        if (typeSymbol instanceof TypeReferenceTypeSymbol typeRefSymbol
+                && typeRefSymbol.definition() instanceof EnumSymbol enumSymbol) {
+            return Optional.of(enumSymbol);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Adds an option for each member of the given enum. A member is labelled with its name (e.g. `HIGH`), while
+     * the value it holds (e.g. `"10"`) stays the generated value, so that the source keeps referring to the
+     * member the way it did before the members were surfaced by name, and hence needs no module prefix.
+     *
+     * @param enumSymbol      the enum definition
+     * @param options         the options to append to
+     * @param enumMemberTypes collects the signatures of the singleton types covered by the added options
+     */
+    private static void addEnumOptions(EnumSymbol enumSymbol, List<Option> options, Set<String> enumMemberTypes) {
+        // The members are returned in the reverse order of their declaration
+        for (ConstantSymbol enumMember : enumSymbol.members().reversed()) {
+            String memberValue = enumMember.typeDescriptor().signature();
+            enumMemberTypes.add(memberValue);
+            enumMember.getName().ifPresent(name -> options.add(new Option(name, memberValue)));
+        }
     }
 
     private static boolean handlePrimitiveType(TypeSymbol typeSymbol, String ballerinaType,
