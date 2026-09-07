@@ -30,30 +30,51 @@ interface EnumEditorProps {
 const DEFAULT_NONE_SELECTED_VALUE = "__none__";
 
 export const EnumEditor = (props: EnumEditorProps) => {
-    // Ensure value is in items, otherwise use first item's value
+    const options = useMemo(
+        () => (props.items.length > 0 ? props.items : (props.field.itemOptions ?? [])),
+        [props.items, props.field.itemOptions]
+    );
+
+    // The member the parameter defaults to, which the placeholder holds as the value of that option. An
+    // optional enum defaults to nil, which refers to no member, hence there is not always one.
+    const defaultOption = useMemo(
+        () => options.find(item => item.value === props.field.placeholder),
+        [options, props.field.placeholder]
+    );
+
+    const isSetToAnOption = props.value !== undefined && props.value !== null && props.value !== ""
+        && options.some(item => item.value === props.value);
+
     const itemsList = useMemo(() => {
-        const baseItems = props.items.length > 0 ? props.items : (props.field.itemOptions ?? []);
+        // Leaving the field empty applies the default of the parameter, so the member it applies stands for
+        // the empty selection and gets no entry of its own: an entry repeating a member of the list reads as
+        // a second way of selecting it. One is offered when there is no default to apply, and when the field
+        // holds something that none of the members stands for, which needs a selection to fall back to.
+        if (defaultOption && (isSetToAnOption || !props.value)) {
+            return options;
+        }
         return [
-            ...baseItems,
+            ...options,
             {
                 id: "default-option",
-                // A field-provided placeholder (e.g. "(default)") describes what an empty
-                // selection means; fall back to the generic label otherwise.
-                content: props.field.placeholder?.toString() || "No Selection",
+                content: "No Selection",
                 value: DEFAULT_NONE_SELECTED_VALUE
             }
         ];
-    }, [props.items, props.field.itemOptions]);
+    }, [options, defaultOption, isSetToAnOption, props.value]);
 
     const selectedValue = useMemo(() => {
-        if (props.value === undefined || props.value === null || props.value === "") {
-            return DEFAULT_NONE_SELECTED_VALUE;
-        }
-        if (props.value && itemsList.some(item => item.value === props.value)) {
+        if (isSetToAnOption) {
             return props.value;
         }
-        return itemsList[0].value;
-    }, [props.value, itemsList]);
+        // An empty field applies the default of the parameter, hence the member it applies is shown as the
+        // selected one. A value that none of the members stands for (e.g. pro code written by hand) is not a
+        // selection of any of them, and showing one would misreport what the source holds.
+        if (!props.value && defaultOption) {
+            return defaultOption.value;
+        }
+        return DEFAULT_NONE_SELECTED_VALUE;
+    }, [props.value, isSetToAnOption, defaultOption]);
 
     const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
